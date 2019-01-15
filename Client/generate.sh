@@ -1,0 +1,1 @@
+pyrcc5 -o src.py qml.qrc

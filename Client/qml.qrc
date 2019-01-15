@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Auth.qml</file>
+        <file>Cache.qml</file>
+        <file>Chat.qml</file>
+        <file>ChatsList.qml</file>
+        <file>CustomButton.qml</file>
+        <file>CustomInput.qml</file>
+        <file>SocketIo.qml</file>
+        <file>ToolbarFooter.qml</file>
+        <file>UsersList.qml</file>
+        <file>UserPage.qml</file>
+        <file>xhr.js</file>
+        <file>assets/Extra-Fruity.ttf</file>
+        <file>assets/Istok-Regular.ttf</file>
+        <file>assets/logo-3-blue.png</file>
+        <file>assets/logo-3-white.png</file>
+        <file>assets/logo-3.png</file>
+        <file>assets/Play-Bold.ttf</file>
+        <file>assets/Play.ttf</file>
+        <file>assets/search.png</file>
+        <file>assets/sms.png</file>
+        <file>assets/Tittilium.ttf</file>
+        <file>assets/user.png</file>
+        <file>FillButton.qml</file>
+        <file>Settings.qml</file>
+        <file>main.cpp</file>
+        <file>FileUploader.qml</file>
+        <file>assets/search-white.png</file>
+        <file>assets/search-white-small.png</file>
+        <file>assets/search-2.png</file>
+        <file>assets/logo-3-small.png</file>
+        <file>assets/logo-3-small-2.png</file>
+        <file>Header.qml</file>
+        <file>assets/arrows-white.png</file>
+        <file>assets/window-close.png</file>
+        <file>assets/minmax.png</file>
+        <file>assets/swap-window.png</file>
+        <file>Modal.qml</file>
+        <file>assets/logo-3-small-3.png</file>
+        <file>ViewPort.qml</file>
+        <file>NavigationBar.qml</file>
+    </qresource>
+</RCC>

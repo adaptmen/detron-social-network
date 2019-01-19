@@ -170,7 +170,7 @@ export default class AppRepository {
                 this.start();
             });
 
-        this
+        /*this
             .snapshotProvider
             .getMessages()
             .then((messages) => {
@@ -193,9 +193,9 @@ export default class AppRepository {
                 });
                 this.messagesReady = true;
                 this.start();
-            });
+            });*/
 
-        this
+        /*this
             .snapshotProvider
             .getChats()
             .then((chats) => {
@@ -228,7 +228,7 @@ export default class AppRepository {
                 console.log('Subscriptions: ', this.subscriptions);
                 this.chatsReady = true;
                 this.start();
-            });
+            });*/
 
         this
             .snapshotProvider

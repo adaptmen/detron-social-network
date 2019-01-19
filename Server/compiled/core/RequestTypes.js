@@ -1,0 +1,21 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var RequestTypes;
+(function (RequestTypes) {
+    RequestTypes["SUCCESS"] = "success";
+    RequestTypes["ERROR"] = "error";
+    RequestTypes["CREATE_GROUP"] = "create_group";
+    RequestTypes["CREATE_POST"] = "create_post";
+    RequestTypes["GET_WALL"] = "get_wall";
+    RequestTypes["SYNC_NOTIFY"] = "sync_notify";
+    RequestTypes["GET_NEWS"] = "get_news";
+    RequestTypes["NEW_MESSAGE"] = "new_message";
+    RequestTypes["SEND_MESSAGE"] = "send_message";
+    RequestTypes["UPDATE_USER_DATA"] = "update_user_data";
+    RequestTypes["CREATE_CHAT"] = "create_chat";
+    RequestTypes["OPEN_CHAT"] = "open_chat";
+    RequestTypes["GET_CHATS"] = "get_chats";
+    RequestTypes["GET_MESSAGES"] = "get_messages";
+    RequestTypes["USER_INIT"] = "user_init";
+})(RequestTypes || (RequestTypes = {}));
+exports.default = RequestTypes;

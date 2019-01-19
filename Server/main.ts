@@ -146,7 +146,6 @@ appRepository.onInit = () => {
                     .createUser(params.phone, token, ftoken)
                     .then((result) => {
                         if (result == "user created") {
-                            console.log('Main: user created');
                             res.send({ code: "cred", answer: { phone: params.phone, token: token } });
                         }
                     }).catch((error) => { console.log(error) });

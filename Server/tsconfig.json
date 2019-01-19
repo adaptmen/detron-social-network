@@ -1,0 +1,49 @@
+{
+  "include": [
+    "core/**/*",
+    "controllers/**/*",
+    "helpers/**/*",
+    "models/**/*",
+    "providers/**/*",
+    "routes/**/*",
+    "src/**/*",
+    "./main.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "*.spec.ts",
+    "*.js"
+  ],
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./compiled",
+    "paths": {
+      "@shared/*": ["./src/shared/*"],
+      "@providers/*": ["./src/providers/*"]
+    },
+    "sourceMap": false,
+    "declaration": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es5",
+      "es2015.promise",
+      "es2017",
+      "dom",
+      "es2017",
+      "dom"
+    ],
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "moduleResolution": "node"
+  }
+}
+
+
+

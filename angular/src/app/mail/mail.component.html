@@ -1,0 +1,6 @@
+<div *ngFor='let chat of chats' routerLink="/mail/{{chat.id}}">
+	<div class="avatar">
+		<img src="{{ chat.avatar_link }}" alt="">
+	</div>
+	<div>{{ chat.name }}</div>
+</div>

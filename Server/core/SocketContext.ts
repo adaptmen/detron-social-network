@@ -1,6 +1,7 @@
 import * as socketIo from 'socket.io';
 import UserDataProvider from '../providers/UserDataProvider';
 import AppRepository from './AppRepository';
+import AuthRepository from './AuthRepository';
 import MessageDataProvider from '../providers/MessageDataProvider';
 import ChatDataProvider from '../providers/ChatDataProvider';
 import WallDataProvider from '../providers/WallDataProvider';
@@ -30,6 +31,7 @@ export default class SocketContext {
 
 	private dbContext: DbContext;
 	private appRepository: AppRepository;
+	private authRepository: AuthRepository;
 	private securityHelper = new SecurityHelper();
 	private io: socketIo.Server;
 
@@ -38,6 +40,7 @@ export default class SocketContext {
 
 	constructor(io: any,
 		appRepository: AppRepository,
+		authRepository: AuthRepository,
 		dbContext: DbContext,
 		mongoContext: MongoContext) {
 
@@ -47,13 +50,15 @@ export default class SocketContext {
 		this.io = io;
 		console.log('socket io started');
 		this.appRepository = appRepository;
+		this.authRepository = authRepository;
+
 		this.io.use((_socket, next) => {
-			const authData = _socket.handshake.query;
-			console.log('AuthData: ', authData);
-			console.log('Auth user: ', this.appRepository.authList[authData['phone']]);
-			if (this.appRepository.authList[authData.phone].token == authData.token) {
+			const authToken = _socket.handshake.query.t;
+			const tokenStatus = this.authRepository.checkToken(authToken);
+			if (tokenStatus === AppTypes.SUCCESS) {
 				next();
-			} else {
+			} 
+			else {
 				next(new Error('not auth'))
 			}
 		});
@@ -61,44 +66,21 @@ export default class SocketContext {
 		this.io.sockets.on('connection', (socket: any) => {
 
 			console.log("Connect", socket.id);
-			const authData = socket.handshake.query;
+			const token = socket.handshake.query.t;
 
-			let repUser = this.appRepository.getUser
-				(this.appRepository.authList[authData.phone].id);
+			this.dbContext.getUser(this.authRepository.getByToken(token).login)
+			.then((user) => {
+				socket.user = {
+					id: user.id
+				};
+				console.log('Connected user: ', socket.user.id);
 
-			socket.user = {
-				id: repUser.id
-			};
+				socket.emit(RequestTypes.USER_INIT, user);
 
-			this.send.self(socket, new Answer(
-				RequestTypes.SYNC_NOTIFY,
-				this.appRepository.notifyCache.getUnwatched(socket.user.id)
-			));
-
-			this.appRepository.attachSocket(socket.user.id, socket.id);
-
-			/*for (let userSub in this.appRepository.subscriptions[repUser.id]) {
-
-				if (this.appRepository.subscriptions[repUser.id][userSub] == 'chat') {
-					socket.join(userSub);
-				}
-				else {
-					break;
-				}
-			}*/
-
-			console.log('Connected user: ', socket.user.id);
-
-			socket.emit(RequestTypes.USER_INIT, repUser);
-
-			socket.on('test', (info) => {
-				console.log(info);
-				socket.emit('test', 456);
-			});
-
-			socket.on('disconnect', () => {
-				console.log('Disconnect user: ', socket.user.id);
-				this.appRepository.detachSocket(socket.user.id);
+				socket.on('disconnect', () => {
+					console.log('Disconnect user: ', socket.user.id);
+					this.appRepository.detachSocket(socket.user.id);
+				});
 			});
 
             /*socket.on('openPersonalDialog', (companionId) => {

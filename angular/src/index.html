@@ -3,12 +3,21 @@
 <head>
   <meta charset="utf-8">
   <title>Angular</title>
-  <base href="/">
+  <base href="./">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
   <app-root></app-root>
+  <script>
+	window.getUrlVars = function() {
+		window.url_params = {};
+		window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+			window.url_params[key] = value;
+		});
+		return window.url_params;
+	};
+  </script>
 </body>
 </html>

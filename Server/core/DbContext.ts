@@ -33,39 +33,44 @@ export default class DbContext {
 	private securityHelper = new SecurityHelper();
 	private mongoContext: MongoContext;
 
-	public appRepository: AppRepository;
-
-	constructor(mongoContext: MongoContext, appRepository: AppRepository) {
+	constructor(mongoContext: MongoContext) {
 		this.mongoContext = mongoContext;
-		this.appRepository = appRepository;
 	}
 
-	public createUser(phone, token, ftoken): any {
-		return new Promise((resolve, reject) => {
-			let newId = this.securityHelper.generateId();
-			this.userProvider.insertUser(newId, phone, token, ftoken)
-				.then((result) => {
-					this.appRepository.createUser({
-						id: newId,
-						phone: phone,
-						name: phone,
-						token: token
-					});
-					this.wallProvider.addWall(new Wall(newId)).then(() => {
-						resolve("user created");
-					});
-				});
-		})
+	public login(login, password): any {
+		return this
+		.userProvider
+		.checkAccess(login, password)
+		.then((res) => {
+             if (res === AppTypes.EMPTY) return AppTypes.DENIED;
+             else return AppTypes.ACCESS;
+         });
 	}
 
-	public loginUser(phone, token): any {
-		return this.appRepository.checkUser(phone, token)
-			? "allow"
-			: "not allow";
+	public checkExist(login) {
+		return this.userProvider.checkExist(login).then((res) => {
+			if (res === AppTypes.EMPTY) return AppTypes.NOT_EXIST;
+            else return AppTypes.EXIST;
+		});
 	}
 
-	public checkByPhone(phone) {
-		return this.appRepository.checkInAuth(phone)
+	public getUser(login) {
+		return this.userProvider.getByLogin(login);
+	}
+
+	public createUser(login, password) {
+		let new_u = {
+			id: this.securityHelper.generateId(),
+			login, password,
+			token: this.securityHelper.generateToken(),
+			f_token: this.securityHelper.generateToken()
+		};
+		this
+		.userProvider
+		.insertUser(new_u.id, new_u.login, new_u.password, new_u.token, new_u.f_token)
+		.then((res) => {
+			return AppTypes.SUCCESS;
+		});
 	}
 
 	public createMessage(message: Message) {
@@ -94,9 +99,6 @@ export default class DbContext {
 								chat_event.id,
 								HistoryEventTypes.HISTORY_EVENT,
 								message.time);
-
-							this.appRepository.historyCache.addEvent(chat_event);
-							this.appRepository.historyCache.addEvent(user_event);
 
 							resolve();
 						});

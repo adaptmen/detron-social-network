@@ -4,6 +4,8 @@ import AppTypes from './AppTypes';
 var config = require('../config.json');
 
 export default class SqlContext {
+
+	public current_history_table = '201901';
 	
 	public query = (sql) => {
 		return new Promise((resolve, reject) => {

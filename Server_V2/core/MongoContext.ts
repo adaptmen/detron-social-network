@@ -2,6 +2,7 @@ const mongo = require('mongodb');
 const MongoClient = mongo.MongoClient;
 const DB_URL = "localhost:27017";
 const DB_NAME = "local";
+const MongoId = mongo.ObjectId;
 
 export default class MongoContext {
 
@@ -27,7 +28,7 @@ export default class MongoContext {
     }
 
     public readStream(m_fileId): any {
-        return this.bucket.openDownloadStream(m_fileId);
+        return this.bucket.openDownloadStream(MongoId(m_fileId));
     }
 
     public find(collection, searchOptions) {

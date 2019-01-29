@@ -8,7 +8,7 @@ export default class WallDataProvider extends DataProvider {
         super();
     }
 
-    public addWall(wall: Wall): Promise<any> {
+    public addWall(wall: any): Promise<any> {
 		let sparql =
 			`${this.sparqlHelper.prefixes}
 			INSERT DATA { 
@@ -42,6 +42,19 @@ export default class WallDataProvider extends DataProvider {
 			}`;
 		return this.query(sparql, 'query');
 	}
+
+    public checkOwner(wall_id, user_id) {
+        let sparql =
+            `${this.sparqlHelper.prefixes}
+            ASK WHERE
+            {
+                GRAPH <${this.sparqlHelper.graphs_uri.walls}>
+                { 
+                    walls:wall_${wall_id} walls:attacher users:
+                }
+            }}`;
+        return this.query(sparql, 'query');
+    }
 
     public getWallInfoByOwner(owner: string): Promise<any> {
         let sparql =

@@ -5,12 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MailComponent } from './mail/mail.component';
 import { NewsComponent } from './news/news.component';
+import { UploadComponent } from './upload/upload.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MailComponent,
-    NewsComponent
+    NewsComponent,
+    UploadComponent
   ],
   imports: [
     BrowserModule,

@@ -1,24 +1,35 @@
 import DataProvider from "./DataProvider";
+import SqlContext from "./SqlContext";
 
 export default class HistoryDataProvider extends DataProvider {
 
-    constructor() {
+    public sqlContext;
+
+    constructor(sqlContext: SqlContext) {
         super();
+        this.sqlContext = sqlContext;
     }
 
-    public addEvent(event: any) {
+    public addEvent(type, subject, object, time) {
         let event_id = this.securityHelper.generateId();
-        let sparql =
-            `${this.sparqlHelper.prefixes} 
-                    INSERT DATA {
-                        GRAPH <${this.sparqlHelper.graphs_uri.history}>
-                        { events:event_${event.id} type:id "${event.id}";
-                            events:subject ${event.subject} ;
-                            events:object ${event.object} ;
-                            events:type "${event.type}" ;
-                            type:role "event" ;
-                            type:time "${event.time}" } }`;
-        return this.query(sparql, 'update')
+        return new Promise((resolve, reject) => {
+            this.sqlContext.query(`USE history
+             INSERT INTO \`${this.sqlContext.current_history_table}\` (id, type, subject, object, time)
+              VALUES ('${event_id}', '${type}', '${subject}', '${object}', '${time}')`)
+            .then(() => {
+                let sparql =
+                `${this.sparqlHelper.prefixes} 
+                        INSERT DATA {
+                            GRAPH <${this.sparqlHelper.graphs_uri.history}>
+                            { events:event_${event_id} type:id "${event_id}";
+                                events:subject ${subject} ;
+                                events:object ${object} ;
+                                events:type "${type}" ;
+                                type:role "event" ;
+                                type:time "${time}" } }`;
+                this.query(sparql, 'update').then(() => { resolve() });
+            });
+        });
     }
 
     public getAllHistory() {

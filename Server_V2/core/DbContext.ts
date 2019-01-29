@@ -1,6 +1,7 @@
 import SecurityHelper from '../helpers/SecurityHelper';
 import SocketContext from "./SocketContext";
 import MongoContext from "./MongoContext";
+import SqlContext from "./SqlContext";
 import FileDataProvider from '../providers/FileDataProvider';
 import HistoryDataProvider from '../providers/HistoryDataProvider';
 import MessageDataProvider from '../providers/MessageDataProvider';
@@ -8,20 +9,24 @@ import UserDataProvider from '../providers/UserDataProvider';
 import WallDataProvider from '../providers/WallDataProvider';
 import GroupDataProvider from '../providers/GroupDataProvider';
 
+import AppTypes from './AppTypes';
+
 export default class DbContext {
 
-	private messageProvider = new MessageDataProvider();
-	private historyProvider = new HistoryDataProvider();
-	private userProvider = new UserDataProvider();
+	private securityHelper = new SecurityHelper();
+	private mongoContext: MongoContext;
+	private sqlContext: SqlContext;
+	
+	private messageProvider = new MessageDataProvider(this.sqlContext);
+	private historyProvider = new HistoryDataProvider(this.sqlContext);
+	private userProvider = new UserDataProvider(this.sqlContext);
 	private wallProvider = new WallDataProvider();
 	private fileProvider = new FileDataProvider();
 	private groupProvider = new GroupDataProvider();
 
-	private securityHelper = new SecurityHelper();
-	private mongoContext: MongoContext;
-
-	constructor(mongoContext: MongoContext) {
+	constructor(mongoContext: MongoContext, sqlContext: SqlContext) {
 		this.mongoContext = mongoContext;
+		this.sqlContext = sqlContext;
 	}
 
 	public login(login, password): any {
@@ -45,6 +50,127 @@ export default class DbContext {
 		return this.userProvider.getByLogin(login);
 	}
 
+	public checkUploadAccess(user_id, object_fid): Promise <AppTypes.SUCCESS | AppTypes.ERROR> {
+		let wall_parse = String(object_fid).match(/(wall)_([^.]+)/);
+		let chat_parse = String(object_fid).match(/(chat)_([^.]+)/);
+		let user_parse = String(object_fid).match(/(user)_([^.]+)/);
+		return new Promise((resolve, reject) => {
+			if(!wall_parse && !chat_parse && !user_parse) return reject(AppTypes.ERROR);
+			if (wall_parse) {
+				this
+				.wallProvider
+				.getOwnerInfo(wall_parse[2])
+				.then((res) => {
+					return res.id == user_id 
+					? resolve(AppTypes.SUCCESS)
+					: resolve(AppTypes.ERROR)
+				});
+			}
+			if (chat_parse) {
+				this
+				.userProvider
+				.checkSubscribe(user_id, object_fid)
+				.then((res) => {
+					return res === AppTypes.SUCCESS 
+					? resolve(AppTypes.SUCCESS)
+					: resolve(AppTypes.ERROR);
+				});
+			}
+			if (user_parse) {
+				`user_${user_id}` == object_fid 
+				? resolve(AppTypes.SUCCESS)
+				: resolve(AppTypes.ERROR)
+			}
+		});
+	}
+
+	public generateUploadToken(user_id, object_fid) {
+		return this.fileProvider.generateToken(user_id, object_fid);
+	}
+
+	public getUploadTokenData(token) {
+		let tData = this.fileProvider.getTokenData(token);
+		if (tData == AppTypes.TIME_BANNED) return AppTypes.TIME_BANNED;
+		if (tData == AppTypes.NOT_EXIST) return AppTypes.DENIED;
+		return tData;
+	}
+
+	public getFileSteam(file_id) {
+		return this
+		.sqlContext
+		.query(`USE disk SELECT mongo_id FROM \`files\` WHERE id = '${file_id}'`)
+		.then((res: any) => {
+			return res.mongo_id
+		});
+	}
+
+	public accessFileExt(ext) {
+		let ACCESS_LIST = ['.png', '.jpeg', '.jpg', '.pdf'];
+		return ACCESS_LIST.includes(ext);
+	}
+
+	public checkFileAccess(user_id, object) {
+		let wall_parse = String(object).match(/(wall)_([^.]+)/);
+		let chat_parse = String(object).match(/(chat)_([^.]+)/);
+		let user_parse = String(object).match(/(user)_([^.]+)/);
+
+		return new Promise((resolve, reject) => {
+			if(!wall_parse && !chat_parse && !user_parse) return reject(AppTypes.ERROR);
+			if (wall_parse) {
+				this
+				.userProvider
+				.checkSubscribe(user_id, object)
+				.then((res) => {
+					return res === AppTypes.SUCCESS 
+					? resolve(AppTypes.SUCCESS) 
+					: this
+					.wallProvider
+					.checkOwner(wall_parse[2], user_id)
+					.then((res) => {
+						return res === AppTypes.SUCCESS 
+						? resolve(AppTypes.SUCCESS)
+						: resolve(AppTypes.ERROR)
+					});
+				});
+			}
+			if (chat_parse) {
+				this
+				.userProvider
+				.checkSubscribe(user_id, object)
+				.then((res) => {
+					return res === AppTypes.SUCCESS 
+					? resolve(AppTypes.SUCCESS)
+					: resolve(AppTypes.ERROR);
+				});
+			}
+			if (user_parse) {
+				`user_${user_id}` == object 
+				? resolve(AppTypes.SUCCESS)
+				: resolve(AppTypes.ERROR)
+			}
+		});
+	}
+
+	public uploadFile(file_id, file_name, attacher, ext, file) {
+		return new Promise((resolve, reject) => {
+
+			let m_stream = this.mongoContext.writeStream(file_id, {});
+            file.pipe(m_stream);
+            m_stream.on('finish', function () {
+                this.fileProvider.addFile(file_id, attacher)
+                    .then((info) => {
+                    	this.sqlContext
+                    	.query(`USE disk INSERT INTO \`files\`
+                    	 (id, name, privacy, type, mongo_id)
+                    	 VALUES ('${file_id}', '${file_name}', 'private', '${ext}', '${m_stream.id}')`)
+                    	.then(() => {
+                        	resolve(`/disk/${attacher}/${file_id}`);
+                    	});
+                    });
+            });
+		});
+	}
+
 	public createUser(login, password) {
 		let new_u = {
 			id: this.securityHelper.generateId(),
@@ -60,5 +186,71 @@ export default class DbContext {
 		});
 	}
 
+	public createChat(user_1_id, user_2_id) {
+		let chat_id = this.securityHelper.generateId();
+		return new Promise((resolve, reject) => {
+			this
+			.messageProvider
+			.createChat(chat_id, user_1_id, user_2_id)
+			.then((res) => {
+				this.userProvider.subscribeUser(user_1_id, `chats:chat_${chat_id}`).then((res) => {
+					this.userProvider.subscribeUser(user_2_id, `chats:chat_${chat_id}`).then((res) => {
+						resolve(chat_id);
+					})
+				})
+			})
+		});
+	}
+
+	public sendMessage(chat_id, maker_id, content) {
+		let time = Date.now();
+		return new Promise((resolve, reject) => {
+			this
+			.messageProvider
+			.addMessage(chat_id, maker_id, content, time).then((res) => {
+				this
+				.historyProvider
+				.addEvent('new_message', `user_${maker_id}`, `chat_${chat_id}`, time)
+				.then(() => {
+					resolve()
+				})
+			})
+		})
+	}
+
+	public getMessages(user_id, chat_id, offsetLevel) {
+		return new Promise((resolve, reject) => {
+			this
+			.userProvider
+			.checkSubscribe(user_id, `chats:${chat_id}`)
+			.then((res) => {
+				if (res === AppTypes.SUCCESS) {
+					this
+					.messageProvider
+					.getMessagesByChat(chat_id, offsetLevel)
+					.then((messages) => {
+						let users_ids = [];
+						messages.forEach((message) => {
+							users_ids.push(message['maker_id'])
+						});
+						this.userProvider.getPersonsById(users_ids).then((persons) => {
+							persons.forEach((person) => {
+								messages.forEach((message) => {
+									if (message['maker_id'] == person['id']) {
+										message['maker_name'] = person['name'];
+										message['avatar_url'] = person['avatar_url'];
+									}
+								});
+							});
+							resolve(messages);
+						});
+					});
+				}
+				else {
+					return AppTypes.ERROR;
+				}
+			});
+		});
+	}
 
 }

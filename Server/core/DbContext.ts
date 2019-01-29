@@ -1,6 +1,7 @@
 import SecurityHelper from '../helpers/SecurityHelper';
 import SocketContext from "./SocketContext";
 import MongoContext from "./MongoContext";
+import SqlContext from "./SqlContext";
 import AppRepository from './AppRepository';
 import FileDataProvider from '../providers/FileDataProvider';
 import ChatDataProvider from '../providers/ChatDataProvider';
@@ -21,9 +22,11 @@ import Chat from '../models/Chat';
 
 export default class DbContext {
 
+	private sqlContext = new SqlContext();
+
 	private messageProvider = new MessageDataProvider();
 	private historyProvider = new HistoryDataProvider();
-	private userProvider = new UserDataProvider();
+	private userProvider = new UserDataProvider(this.sqlContext);
 	private chatProvider = new ChatDataProvider();
 	private wallProvider = new WallDataProvider();
 	private fileProvider = new FileDataProvider();
@@ -33,8 +36,9 @@ export default class DbContext {
 	private securityHelper = new SecurityHelper();
 	private mongoContext: MongoContext;
 
-	constructor(mongoContext: MongoContext) {
+	constructor(mongoContext: MongoContext, sqlContext: SqlContext) {
 		this.mongoContext = mongoContext;
+		this.sqlContext = sqlContext;
 	}
 
 	public login(login, password): any {

@@ -2,6 +2,8 @@ import * as socketIo from 'socket.io';
 import SecurityHelper from '../helpers/SecurityHelper';
 import DbContext from './DbContext';
 import AuthRepository from './AuthRepository';
+import AppTypes from './AppTypes';
+import SocketTypes from './SocketTypes';
 
 export default class SocketContext {
 
@@ -47,11 +49,30 @@ export default class SocketContext {
 				};
 				console.log('Connected user: ', socket.user.id);
 
-				socket.emit(RequestTypes.USER_INIT, user);
+				socket.emit(SocketTypes.USER_INIT, user);
 
 				socket.on('disconnect', () => {
 					console.log('Disconnect user: ', socket.user.id);
-					this.appRepository.detachSocket(socket.user.id);
+				});
+
+			});
+
+			socket.on('get_upload_token', (info) => {
+				this
+				.dbContext
+				.checkUploadAccess(socket.user.id, info.object_fid)
+				.then((res) => {
+					if (res === AppTypes.SUCCESS) {
+						socket.emit(
+							'get_upload_token',
+							this.dbContext
+							.generateUploadToken(socket.user.id, info.object_fid)
+						);
+						
+					}
+					else {
+						socket.emit('get_upload_token', 'error');
+					}
 				});
 			});
 

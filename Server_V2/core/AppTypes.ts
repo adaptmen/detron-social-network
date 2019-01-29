@@ -6,6 +6,7 @@ enum AppTypes {
 	EXIST = 'exist',
 	NOT_EXIST = 'not_exist',
 	ACCESS = 'access',
+	EMPTY = 'empty',
 }
 
 export default AppTypes;

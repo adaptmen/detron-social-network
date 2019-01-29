@@ -1,110 +1,95 @@
 import DataProvider from "./DataProvider";
 import MongoContext from "../core/MongoContext";
-
+import SqlContext from "../core/SqlContext";
 
 export default class MessageDataProvider extends DataProvider {
 
-    constructor() {
+    private sqlContext;
+
+    constructor(sqlContext: SqlContext) {
         super();
+        this.sqlContext = sqlContext;
     }
 
-    public addMessage(message: any): Promise<any> {
-        let sparql =
-            `${this.sparqlHelper.prefixes}
-            INSERT DATA
-            {
-              GRAPH <${this.sparqlHelper.graphs_uri.messages}>
-              {
-                messages:msg_${message.id} type:id "${message.id}" ;
-                messages:maker users:user_${message.maker_id} ;
-                type:time "${message.time}" ;
-                messages:chat chats:chat_${message.chat_id};
-                messages:mongo_id "${message.mongo_id}"
-              }}`;
-        return this.query(sparql, 'update');
-    }
+    public addMessage(chat_id, maker_id, content, time): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let msg_id = this.securityHelper.generateId();
 
-    public getMessageById(msg_id, chat_id: string) {
-        let sparql =
-            `${this.sparqlHelper.prefixes}
-        SELECT ?id ?time ?maker_id ?maker_name ?chat_id ?mongo_id
-        FROM <${this.sparqlHelper.graphs_uri.messages}>
-        {
-			messages:msg_${msg_id} type:id ?id ;
-			type:id ?id ;
-			messages:chat ?chat ;
-			messages:mongo_id ?mongo_id ;
-			messages:maker ?maker .
-			OPTIONAL {
-				GRAPH <${this.sparqlHelper.graphs_uri.users}> {
-					?maker type:id ?maker_id;
-					users:name ?maker_name;
-				}
-			}
-			OPTIONAL {
-				GRAPH <${this.sparqlHelper.graphs_uri.chats}> {
-					?chat type:id ?chat_id .
-				}
-			}
-        }`;
-        console.log(sparql);
-        return this.query(sparql, 'query');
+            this
+            .sqlContext
+            .query(`USE chats INSERT INTO \`chat_${chat_id}\`
+             (id, maker_id, content, time)
+              VALUES ('${msg_id}', '${maker_id}', '${content}', '${time}')`)
+            .then(() => {
+                let sparql =
+                `${this.sparqlHelper.prefixes}
+                INSERT DATA
+                {
+                  GRAPH <${this.sparqlHelper.graphs_uri.messages}>
+                  {
+                    messages:msg_${msg_id} type:id "${msg_id}" ;
+                    messages:maker users:user_${maker_id} ;
+                    type:time "${time}" ;
+                    messages:chat chats:chat_${chat_id}
+                  }}`;
+                this.query(sparql, 'update').then(() => { resolve() });
+            });
+        });
     }
 
 
-
-    public getMessagesByUser(user_id: string) {
-        let sparql =
-            `${this.sparqlHelper.prefixes}
-        SELECT ?chat_id ?text ?maker_id ?time
-        FROM <${this.sparqlHelper.graphs_uri.messages}>
-        WHERE { {
-          ?user users:id "${user_id}" .
-          ?user users:subscribe ?chat .
-          ?chat chats:id ?chat . }
-          UNION {
-            GRAPH ?chat {
-              ?chat chats:id ?chat_id .
-              ?msg messages:text ?msg_id .
-              ?msg messages:time ?time .
-              ?msg messages:maker ?maker .
-              ?maker users:id ?maker_id }}}`;
-        return this.query(sparql, 'query');
+    public createChat(chat_id, user_1_id, user_2_id) {
+        return new Promise((resolve, reject) => {
+            this
+            .sqlContext
+            .query(`USE chats CREATE TABLE \`chat_${chat_id}\``)
+            .then((res) => {
+                this
+                .sqlContext
+                .query(`USE containers INSERT INTO \`user_${user_1_id}\`
+                    (type, object_id, last_message)
+                    VALUES ('chat', '${chat_id}', NULL)`)
+                .then((res) => {
+                    this
+                    .sqlContext
+                    .query(`USE containers INSERT INTO \`user_${user_2_id}\`
+                        (type, object_id, last_data)
+                        VALUES ('chat', '${chat_id}', NULL)`)
+                    .then((res) => {
+                        let sparql =
+                        `${this.sparqlHelper.prefixes}
+                        INSERT DATA { 
+                            GRAPH <${this.sparqlHelper.graphs_uri.chats}> 
+                            { chats:chat_${chat_id} type:id "${chat_id}" ;
+                                chats:privacy "private" ;
+                                type:role "chat" . } }`;
+                        this.query(sparql, 'update')
+                        .then(() => {
+                            resolve();
+                        })
+                    });
+                });
+            });
+        });
     }
 
 	public getMessagesByChat(chat_id, offsetLevel): Promise<any> {
-        let sparql =
-            `${this.sparqlHelper.prefixes}
-			SELECT ?id ?time ?maker_id ?maker_name ?mongo_id 
-			{
-				GRAPH <${this.sparqlHelper.graphs_uri.messages}> {
-					?message messages:chat chats:chat_${chat_id} ;
-					messages:id ?id ;
-					messages:time ?time ;
-					messages:text ?content ;
-					messages:maker ?maker .
-				}
-				GRAPH <${this.sparqlHelper.graphs_uri.messages}> {
-					?maker type:id ?maker_id ;
-					users:name ?maker_name .
-				}
-			}
-			ORDER BY ?time
-			LIMIT 30
-			OFFSET ${offsetLevel * 30}`;
-        return this.query(sparql, 'query');
+        return this
+        .sqlContext
+        .query(`USE \`chats\` SELECT id, maker_id, content, time
+         FROM \`chat_${chat_id}\` LIMIT 30 OFFSET ${30 * offsetLevel}`);
     }
 
     public updateMessage(chat_id, msg_id, text: string): Promise<any> {
         let sparql =
             `${this.sparqlHelper.prefixes}
-        WITH <${this.sparqlHelper.graphs_uri.messages}>
-        DELETE { messages:msg_${msg_id} messages:text ?value }
-        WHERE  { messages:msg_${msg_id} messages:text ?value };
-        INSERT DATA { 
-          GRAPH <${this.sparqlHelper.graphs_uri.messages}>
-          { messages:msg_${msg_id} messages:text "${text}" }
-        }`;
+            WITH <${this.sparqlHelper.graphs_uri.messages}>
+            DELETE { messages:msg_${msg_id} messages:text ?value }
+            WHERE  { messages:msg_${msg_id} messages:text ?value };
+            INSERT DATA { 
+              GRAPH <${this.sparqlHelper.graphs_uri.messages}>
+              { messages:msg_${msg_id} messages:text "${text}" }
+            }`;
         return this.query(sparql, 'update');
     }
 

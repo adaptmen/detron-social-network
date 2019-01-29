@@ -1,4 +1,5 @@
 import DataProvider from "./DataProvider";
+import AppTypes from '../core/AppTypes';
 
 
 export default class FileDataProvider extends DataProvider {

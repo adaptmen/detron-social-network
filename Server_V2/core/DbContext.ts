@@ -50,6 +50,36 @@ export default class DbContext {
 		return this.userProvider.getByLogin(login);
 	}
 
+	public getChats(user_id) {
+		return new Promise((resolve, reject) => {
+			this
+			.messageProvider
+			.getChats(user_id)
+			.then((chats) => {
+				if (chats.length == 0) return resolve([]);
+				let ids = [];
+				chats.forEach((chat) => {
+					ids.push(chat.friend_id);
+				});
+				this.sqlContext
+				.query(`USE app SELECT id, name, avatar_url
+				 FROM \`users\` WHERE id IN ("${ids.join('\', \'')}")`)
+				.then((friends: any) => {
+					chats.forEach((chat) => {
+						friends.forEach((friend) => {
+							if (chat.friend_id == friend.id) {
+								chat['name'] = friend.name;
+								chat['user_id'] = friend.id;
+								chat['avatar_url'] = friend.avatar_url;
+							}
+						});
+					});
+					resolve(chats);
+				});
+			});
+		});
+	}
+
 	public checkUploadAccess(user_id, object_fid): Promise <AppTypes.SUCCESS | AppTypes.ERROR> {
 		let wall_parse = String(object_fid).match(/(wall)_([^.]+)/);
 		let chat_parse = String(object_fid).match(/(chat)_([^.]+)/);
@@ -233,7 +263,7 @@ export default class DbContext {
 						messages.forEach((message) => {
 							users_ids.push(message['maker_id'])
 						});
-						this.userProvider.getPersonsById(users_ids).then((persons) => {
+						this.userProvider.getPersonsById(users_ids).then((persons: any) => {
 							persons.forEach((person) => {
 								messages.forEach((message) => {
 									if (message['maker_id'] == person['id']) {

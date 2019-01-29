@@ -1,5 +1,5 @@
 import DataProvider from "./DataProvider";
-import SqlContext from "./SqlContext";
+import SqlContext from "../core/SqlContext";
 
 export default class HistoryDataProvider extends DataProvider {
 

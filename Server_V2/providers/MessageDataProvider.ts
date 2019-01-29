@@ -37,6 +37,25 @@ export default class MessageDataProvider extends DataProvider {
         });
     }
 
+    public getChats(user_id) {
+        let sparql =
+            `${this.sparqlHelper.prefixes}
+            SELECT ?chat_id ?friend_id
+            {
+                GRAPH <${this.sparqlHelper.graphs_uri.users}>  {
+                    users:user_${user_id} type:subscribe ?chat .
+                    ?friend type:subscribe ?chat;
+                    type:id ?friend_id.
+                }
+                OPTIONAL {
+                    GRAPH <${this.sparqlHelper.graphs_uri.chats}>  {
+                        ?chat type:role "chat" ;
+                        type:id ?chat_id .
+                    }
+                }
+            }`;
+        return this.query(sparql, 'query');
+    }
 
     public createChat(chat_id, user_1_id, user_2_id) {
         return new Promise((resolve, reject) => {

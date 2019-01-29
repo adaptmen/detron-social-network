@@ -43,7 +43,7 @@ export default class SocketContext {
 			this
 			.dbContext
 			.getUser(this.authRepository.getByToken(token).login)
-			.then((user) => {
+			.then((user: any) => {
 				socket.user = {
 					id: user.id
 				};
@@ -57,24 +57,33 @@ export default class SocketContext {
 
 			});
 
-			socket.on('get_upload_token', (info) => {
+			socket.on(SocketTypes.GET_UPLOAD_TOKEN, (info) => {
 				this
 				.dbContext
 				.checkUploadAccess(socket.user.id, info.object_fid)
 				.then((res) => {
 					if (res === AppTypes.SUCCESS) {
 						socket.emit(
-							'get_upload_token',
+							SocketTypes.GET_UPLOAD_TOKEN,
 							this.dbContext
 							.generateUploadToken(socket.user.id, info.object_fid)
 						);
 						
 					}
 					else {
-						socket.emit('get_upload_token', 'error');
+						socket.emit(SocketTypes.GET_UPLOAD_TOKEN, 'error');
 					}
 				});
 			});
+
+			socket.on(SocketTypes.GET_CHATS, () => {
+				this
+				.dbContext
+				.getChats(socket.user.id)
+				.then((chats) => {
+					socket.emit(SocketTypes.GET_CHATS, chats);
+				});
+			})
 
 		});
 
@@ -109,4 +118,9 @@ export default class SocketContext {
 		return this.io.sockets.adapter.rooms[room_id];
 	}
 
+}
+
+class Answer {
+	public code: any;
+	public answer: any;
 }

@@ -18,6 +18,10 @@ export default class SecurityHelper {
     return `${ uniqid( uniqid( uniqid( uniqid( uniqid( uniqid() ) ) ) ) ) }`;
   }
 
+  public generateAuthToken() {
+    return `${ uniqid( uniqid( uniqid( ) ) ) }`;
+  }
+
   public generateSmsCode() {
     return Math.floor(Math.random() * 100000).toString();
   }

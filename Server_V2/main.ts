@@ -4,7 +4,7 @@ import GooglePhoneLib = require('google-libphonenumber');
 import http = require('http');
 import express = require('express');
 import busboy = require('connect-busboy');
-import Cookies from 'universal-cookie';
+import Cookies = require('cookies');
 import * as socketIo from 'socket.io';
 
 import path = require("path");
@@ -53,85 +53,71 @@ const checkInStore = (phone) => {
     return !!store.get(String(phone));
 };
 
-app.get('/*', (req, res) => {
-    let cookies = new Cookies(req.headers.cookie)
-    if (cookies.get('t')) {
-        let tStatus = authRepository.checkToken(req.universalCookies.get('t'));
-        if (tStatus == AppTypes.TIME_BANNED) {
-            cookies.remove('t');
-            res.redirect('/auth');
-        }
-        if (tStatus == AppTypes.NOT_EXIST) {
-            cookies.remove('t');
-            res.redirect('/auth');
-        }
-        if (tStatus == AppTypes.SUCCESS) {
-            res.redirect('/app');
-        }
-    }
-    else {
-        res.redirect('/auth');
-    }
-});
 
-app.get('/auth', (req, res) => {
+var auth_route = express.Router({strict: true});
+
+auth_route.get('/', (req, res) => {
     res.status = 200;
     res.sendFile(path.join(__dirname, './public', 'Auth.html'));
 });
 
-app.get('/auth/login', (req, res) => {
+auth_route.post('/login', (req, res) => {
+    console.log("Login params: ", req.query.login, req.query.password);
     authRepository
-    .login(req.url.params.login, req.url.params.password)
+    .login(req.query.login, req.query.password)
     .then((result) => {
+        console.log("Login result: ", result);
         if (result === AppTypes.DENIED) {
             res.status = 403;
             res.end('Access denied');
         }
         else if (typeof(result) === 'string') {
             res.status = 200;
-            let cookies = new Cookies(req.headers.cookie);
-            cookies.set('t', result);
+            let cookies = new Cookies(req, res);
+            cookies.set('t', result, { expires: new Date(Date.now() + 1000*60*60) });
             res.end(result);
         }
     });
 });
 
-app.get('/auth/signup', (req, res) => {
+auth_route.post('/signup', (req, res) => {
+    console.log("Signup:", req.query.login, req.query.password);
     authRepository
-    .signup(req.url.params.login, req.url.params.password)
+    .signup(req.query.login, req.query.password)
     .then((result) => {
+        console.log("Signup result: ", result);
         if (result === AppTypes.EXIST) {
             res.status = 403;
             res.end("User exist");
         }
         else if (typeof(result) === 'string') {
             res.status = 200;
-            let cookies = new Cookies(req.headers.cookie);
-            cookies.set('t', result);
+            let cookies = new Cookies(req, res);
+            cookies.set('t', result, { expires: new Date(Date.now() + 1000*60*60) });
             res.redirect('/app');
         }
     });
 });
 
+app.use('/auth', auth_route);
+
 app.get('/app', (req, res) => {
-    let cookies = new Cookies(req.headers.cookie);
+    let cookies = new Cookies(req, res);
     if (cookies.get('t')) {
         let status = authRepository.checkToken(cookies.get('t'));
         if (status === AppTypes.NOT_EXIST) {
+            cookies.set('t', '');
             res.status = 403;
             res.redirect('/auth');
-            cookies.remove('t');
-            res.end("Token failed");
         }
         else if (status === AppTypes.TIME_BANNED) {
+            cookies.set('t', '');
             res.status = 403;
             res.redirect('/auth');
-            cookies.remove('t');
-            res.end("Time banned");
         }
         else if (status === AppTypes.SUCCESS) {
+            cookies.set("t", authRepository.updateToken(cookies.get('t')), { expires: new Date(Date.now() + 1000*60*60) });
             res.status = 200;
-            cookies.set("t", authRepository.updateToken(cookies.get('t')));
             res.sendFile(path.join(__dirname, './public', 'index.html'));
         }
     }
@@ -139,6 +125,36 @@ app.get('/app', (req, res) => {
         res.redirect('/auth');
     }
 });
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, './public', 'Present.html'));
+});
+
+app.get('/*.js', (req, res) => {
+    res.sendFile(path.join(__dirname, './public', `${req.params['0']}.js`));
+});
+
+// app.get('/*', (req, res) => {
+//     console.log(req.url);
+//     let cookies = new Cookies(req, res)
+//     if (cookies.get('t')) {
+//         let tStatus = authRepository.checkToken(cookies.get('t'));
+//         if (tStatus == AppTypes.TIME_BANNED) {
+//             cookies.remove('t');
+//             res.redirect('/auth');
+//         }
+//         if (tStatus == AppTypes.NOT_EXIST) {
+//             cookies.remove('t');
+//             res.redirect('/auth');
+//         }
+//         if (tStatus == AppTypes.SUCCESS) {
+//             res.redirect('/app');
+//         }
+//     }
+//     else {
+//         res.redirect('/auth');
+//     }
+// });
 
 app.get('/disk/:object_fid/:file_id', (req, res) => {
     

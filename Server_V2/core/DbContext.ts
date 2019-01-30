@@ -16,18 +16,26 @@ export default class DbContext {
 	private securityHelper = new SecurityHelper();
 	private mongoContext: MongoContext;
 	private sqlContext: SqlContext;
-	
-	private messageProvider = new MessageDataProvider(this.sqlContext);
-	private historyProvider = new HistoryDataProvider(this.sqlContext);
-	private userProvider = new UserDataProvider(this.sqlContext);
-	private wallProvider = new WallDataProvider();
-	private fileProvider = new FileDataProvider();
-	private groupProvider = new GroupDataProvider();
 
+	private messageProvider: MessageDataProvider;
+	private historyProvider: HistoryDataProvider;
+	private userProvider: UserDataProvider;
+	private wallProvider: WallDataProvider;
+	private fileProvider: FileDataProvider;
+	private groupProvider: GroupDataProvider;
+	
 	constructor(mongoContext: MongoContext, sqlContext: SqlContext) {
 		this.mongoContext = mongoContext;
 		this.sqlContext = sqlContext;
+		this.messageProvider = new MessageDataProvider(this.sqlContext);
+		this.historyProvider = new HistoryDataProvider(this.sqlContext);
+		this.userProvider = new UserDataProvider(this.sqlContext);
+		this.wallProvider = new WallDataProvider();
+		this.fileProvider = new FileDataProvider();
+		this.groupProvider = new GroupDataProvider();
 	}
+
+
 
 	public login(login, password): any {
 		return this
@@ -208,7 +216,7 @@ export default class DbContext {
 			token: this.securityHelper.generateToken(),
 			f_token: this.securityHelper.generateToken()
 		};
-		this
+		return this
 		.userProvider
 		.insertUser(new_u.id, new_u.login, new_u.password, new_u.token, new_u.f_token)
 		.then((res) => {

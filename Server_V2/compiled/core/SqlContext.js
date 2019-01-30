@@ -5,17 +5,23 @@ var AppTypes_1 = require("./AppTypes");
 var config = require('../config.json');
 var SqlContext = (function () {
     function SqlContext() {
+        var _this = this;
         this.current_history_table = '201901';
-        this.query = function (sql) {
+        this._db = '';
+        this.query = function (sql, placeholders) {
             return new Promise(function (resolve, reject) {
                 var connection = mysql.createConnection({
                     host: config['sql_db']['host'],
                     port: config['sql_db']['port'],
                     user: config['sql_db']['user'],
-                    password: config['sql_db']['password']
+                    password: config['sql_db']['password'],
+                    database: 'app'
+                });
+                connection.changeUser({
+                    database: _this._db
                 });
                 connection.connect(function (err) {
-                    connection.query(sql, function (err, results, fields) {
+                    var q = connection.query(mysql.format(sql, placeholders) || [], function (err, results, fields) {
                         connection.destroy();
                         if (err)
                             return reject(err);
@@ -25,10 +31,15 @@ var SqlContext = (function () {
                             return resolve(results[0]);
                         return resolve(results);
                     });
+                    console.log(q.sql);
                 });
             });
         };
     }
+    SqlContext.prototype.db = function (_db) {
+        this._db = _db;
+        return { query: this.query };
+    };
     return SqlContext;
 }());
 exports.default = SqlContext;

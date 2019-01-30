@@ -11,14 +11,14 @@ var AppTypes_1 = require("./AppTypes");
 var DbContext = (function () {
     function DbContext(mongoContext, sqlContext) {
         this.securityHelper = new SecurityHelper_1.default();
+        this.mongoContext = mongoContext;
+        this.sqlContext = sqlContext;
         this.messageProvider = new MessageDataProvider_1.default(this.sqlContext);
         this.historyProvider = new HistoryDataProvider_1.default(this.sqlContext);
         this.userProvider = new UserDataProvider_1.default(this.sqlContext);
         this.wallProvider = new WallDataProvider_1.default();
         this.fileProvider = new FileDataProvider_1.default();
         this.groupProvider = new GroupDataProvider_1.default();
-        this.mongoContext = mongoContext;
-        this.sqlContext = sqlContext;
     }
     DbContext.prototype.login = function (login, password) {
         return this
@@ -197,7 +197,7 @@ var DbContext = (function () {
             token: this.securityHelper.generateToken(),
             f_token: this.securityHelper.generateToken()
         };
-        this
+        return this
             .userProvider
             .insertUser(new_u.id, new_u.login, new_u.password, new_u.token, new_u.f_token)
             .then(function (res) {

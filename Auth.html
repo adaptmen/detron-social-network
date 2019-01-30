@@ -32,8 +32,12 @@
 			<h3 id="status-label" style="display: none;"></h3>
 		</div>
 	</div>
+	<script
+			  src="https://code.jquery.com/jquery-3.3.1.min.js"
+			  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+			  crossorigin="anonymous"></script>
 	<script>
-		const SERVER_URL	= '174.119.158.61';
+		const SERVER_URL	= '176.119.158.61';
 
 		var phone_input 	= document.getElementById("phone");
 		var password_input 	= document.getElementById("password");
@@ -55,29 +59,24 @@
 		var btn_forgot 		= document.getElementById("btn-forgot");
 		var btn_login 		= document.getElementById("btn-login");
 
-		function send(url, callback) {
-			let xhr = new XMLHttpRequest();
-			xhr.open('GET', url);
-			xhr.send();
-			xhr.onreadystatechange = function() {
-				callback(xhr.status, xhr.responseText);
-			}
-		}
-
 		function signupView() {
 			main_label.innerHTML = 'Регистрация';
 			btn_send.innerHTML = 'Зарегистрироваться';
 			btn_signup.style.display = 'none';
 			btn_login.style.display = 'inline-block';
 
-			btn_send.addEventListener('click', function(e) {
-				send(SERVER_URL + ':4000/auth/signup?login=' + login_input.value + '?password=' + password_input.value, function(status, response) {
-					if (status == 200) {
-						window.location = SERVER_URL + '/app?t=' + response;
-					}
-					else if (status == 403) {
+			$(btn_send).off('click');
+
+			$(btn_send).on('click', function(e) {
+				$.ajax({
+					url: '/auth/signup?login=' + login_input.value + '&password=' + password_input.value,
+					type: "POST",
+					success: function(response) {
+						window.location = '/app';
+					},
+					error: function(data) {
 						status_label.style.display = 'inline-block';
-						status_label.innerHTML = response;
+						status_label.innerHTML = JSON.stringify(data.response);
 					}
 				});
 			});
@@ -89,14 +88,18 @@
 			btn_login.style.display = 'none';
 			btn_signup.style.display = 'inline-block';
 
-			btn_send.addEventListener('click', function(e) {
-				send(SERVER_URL + ':4000/auth/login?login=' + login_input.value + '?password=' + password_input.value, function(status, response) {
-					if (status == 200) {
-						window.location = SERVER_URL + '/app?t=' + response;
-					}
-					else if (status == 403) {
+			$(btn_send).off('click');
+
+			$(btn_send).on('click', function(e) {
+				$.ajax({
+					url: '/auth/login?login=' + login_input.value + '&password=' + password_input.value,
+					type: "POST",
+					success: function(response) {
+						window.location = '/app';
+					},
+					error: function(data) {
 						status_label.style.display = 'inline-block';
-						status_label.innerHTML = response;
+						status_label.innerHTML = JSON.stringify(data.response);
 					}
 				});
 			});
@@ -135,15 +138,17 @@
 			});
 		}
 
-		document.getElementById("btn-send").addEventListener("click", function(e) {
-			send(SERVER_URL + ':4000/auth/login?login=' + login_input.value + '&password=' + password_input.value, function(status, response) {
-				if (status == 403) {
-					status_label.style.display = 'inline-block';
-					status_label.innerHTML = response;
-				} 
-				else if (status == 200) {
+		$(btn_send).on("click", function(e) {
+			$.ajax({
+				url: '/auth/login?login=' + login_input.value + '&password=' + password_input.value,
+				type: "POST",
+				success: function(response) {
 					let token 		= response;
-					window.location = SERVER_URL + '?t=' + String(token);
+					window.location = '/app';
+				},
+				error: function(data) {
+					status_label.style.display = 'inline-block';
+					status_label.innerHTML = JSON.stringify(data.response);
 				}
 			});
 		});

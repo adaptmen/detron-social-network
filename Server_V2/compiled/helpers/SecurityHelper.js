@@ -16,6 +16,9 @@ var SecurityHelper = (function () {
     SecurityHelper.prototype.generateToken = function () {
         return "" + uniqid(uniqid(uniqid(uniqid(uniqid(uniqid())))));
     };
+    SecurityHelper.prototype.generateAuthToken = function () {
+        return "" + uniqid(uniqid(uniqid()));
+    };
     SecurityHelper.prototype.generateSmsCode = function () {
         return Math.floor(Math.random() * 100000).toString();
     };

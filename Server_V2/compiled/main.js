@@ -5,7 +5,7 @@ var GooglePhoneLib = require("google-libphonenumber");
 var http = require("http");
 var express = require("express");
 var busboy = require("connect-busboy");
-var universal_cookie_1 = require("universal-cookie");
+var Cookies = require("cookies");
 var socketIo = require("socket.io");
 var path = require("path");
 var config = require('./config.json');
@@ -40,87 +40,74 @@ var truePhone = function (phoneNum) {
 var checkInStore = function (phone) {
     return !!store.get(String(phone));
 };
-app.get('/*', function (req, res) {
-    var cookies = new universal_cookie_1.default(req.headers.cookie);
-    if (cookies.get('t')) {
-        var tStatus = authRepository.checkToken(req.universalCookies.get('t'));
-        if (tStatus == AppTypes_1.default.TIME_BANNED) {
-            cookies.remove('t');
-            res.redirect('/auth');
-        }
-        if (tStatus == AppTypes_1.default.NOT_EXIST) {
-            cookies.remove('t');
-            res.redirect('/auth');
-        }
-        if (tStatus == AppTypes_1.default.SUCCESS) {
-            res.redirect('/app');
-        }
-    }
-    else {
-        res.redirect('/auth');
-    }
-});
-app.get('/auth', function (req, res) {
+var auth_route = express.Router({ strict: true });
+auth_route.get('/', function (req, res) {
     res.status = 200;
     res.sendFile(path.join(__dirname, './public', 'Auth.html'));
 });
-app.get('/auth/login', function (req, res) {
+auth_route.post('/login', function (req, res) {
+    console.log("Login params: ", req.query.login, req.query.password);
     authRepository
-        .login(req.url.params.login, req.url.params.password)
+        .login(req.query.login, req.query.password)
         .then(function (result) {
+        console.log("Login result: ", result);
         if (result === AppTypes_1.default.DENIED) {
             res.status = 403;
             res.end('Access denied');
         }
         else if (typeof (result) === 'string') {
             res.status = 200;
-            var cookies = new universal_cookie_1.default(req.headers.cookie);
-            cookies.set('t', result);
+            var cookies = new Cookies(req, res);
+            cookies.set('t', result, { expires: new Date(Date.now() + 1000 * 60 * 60) });
             res.end(result);
         }
     });
 });
-app.get('/auth/signup', function (req, res) {
+auth_route.post('/signup', function (req, res) {
+    console.log("Signup:", req.query.login, req.query.password);
     authRepository
-        .signup(req.url.params.login, req.url.params.password)
+        .signup(req.query.login, req.query.password)
         .then(function (result) {
+        console.log("Signup result: ", result);
         if (result === AppTypes_1.default.EXIST) {
             res.status = 403;
             res.end("User exist");
         }
         else if (typeof (result) === 'string') {
             res.status = 200;
-            var cookies = new universal_cookie_1.default(req.headers.cookie);
-            cookies.set('t', result);
+            var cookies = new Cookies(req, res);
+            cookies.set('t', result, { expires: new Date(Date.now() + 1000 * 60 * 60) });
             res.redirect('/app');
         }
     });
 });
+app.use('/auth', auth_route);
 app.get('/app', function (req, res) {
-    var cookies = new universal_cookie_1.default(req.headers.cookie);
+    var cookies = new Cookies(req, res);
     if (cookies.get('t')) {
         var status_1 = authRepository.checkToken(cookies.get('t'));
         if (status_1 === AppTypes_1.default.NOT_EXIST) {
+            cookies.set('t', '');
             res.status = 403;
             res.redirect('/auth');
-            cookies.remove('t');
-            res.end("Token failed");
         }
         else if (status_1 === AppTypes_1.default.TIME_BANNED) {
+            cookies.set('t', '');
             res.status = 403;
             res.redirect('/auth');
-            cookies.remove('t');
-            res.end("Time banned");
         }
         else if (status_1 === AppTypes_1.default.SUCCESS) {
+            cookies.set("t", authRepository.updateToken(cookies.get('t')), { expires: new Date(Date.now() + 1000 * 60 * 60) });
             res.status = 200;
-            cookies.set("t", authRepository.updateToken(cookies.get('t')));
             res.sendFile(path.join(__dirname, './public', 'index.html'));
         }
     }
     else {
         res.redirect('/auth');
     }
+});
+app.get('/*.js', function (req, res) {
+    res.sendFile(path.join(__dirname, './public', req.params['0'] + ".js"));
 });
 app.get('/disk/:object_fid/:file_id', function (req, res) {
 });

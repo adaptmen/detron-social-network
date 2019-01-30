@@ -4,5 +4,15 @@
 		"port": "3306",
 		"user": "root",		
 		"password": "mordor"		
+	},
+	"server": {
+		"port": 4040
+	},
+		"socket": {
+		"port": 4040
+	},
+		"sms": {
+		"login": "DenisPup",
+		"password": "14102000laden"
 	}
 }

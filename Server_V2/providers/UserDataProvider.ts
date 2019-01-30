@@ -14,9 +14,12 @@ export default class UserDataProvider extends DataProvider {
     public insertUser(user_id, login, password, token, ftoken: string): Promise<any> {
         return this
         .sqlContext
-        .query(`INSERT INTO users 
-            (id, name, login, password, token, ftoken)
-             VALUES ('${user_id}', '${login}', '${login}', '${password}', '${token}', '${ftoken}')`).then((res) => {
+        .db('app')
+        .query(`INSERT INTO ?? 
+            (id, name, login, password, token, f_token)
+             VALUES (?, ?, ?, ?, ?, ?)`, 
+             ['users', user_id, login, login, password, token, ftoken])
+        .then((res) => {
              let sparql =
                 `${this.sparqlHelper.prefixes}
                 INSERT DATA
@@ -24,8 +27,7 @@ export default class UserDataProvider extends DataProvider {
                     GRAPH <${this.sparqlHelper.graphs_uri.users}>
                     {
                         users:user_${user_id} type:id "${user_id}" ;
-                        users:name "${login}"
-                        users:login "${login}"
+                        users:login "${login}";
                         type:role "user" ;
                         type:created_at "${Date.now()}" .
                 }}`;
@@ -36,10 +38,10 @@ export default class UserDataProvider extends DataProvider {
     public getUserById(userId): Promise<any> {
         let sparql =
             `${this.sparqlHelper.prefixes}
-			SELECT ?id ?name
+			SELECT ?id ?login
 			FROM <${this.sparqlHelper.graphs_uri.users}> 
 			{ ?user type:id "${userId}" .
-			  ?user users:name ?name; 
+			  ?user users:login ?login; 
 					type:id ?id .
 			}`;
         return this.query(sparql, 'query');
@@ -48,7 +50,8 @@ export default class UserDataProvider extends DataProvider {
     public getPersonById(user_id) {
         return this
         .sqlContext
-        .query(`USE app SELECT id, name, avatar_url FROM \`users\` WHERE id='${user_id}'`);
+        .db('app').query(`SELECT ??, ??, ?? FROM ?? WHERE id = ?`
+            ,['id', 'name', 'avatar_url', 'users', user_id]);
     }
 
     public getPersonsById(users_ids) {
@@ -56,29 +59,27 @@ export default class UserDataProvider extends DataProvider {
 
         return this
         .sqlContext
-        .query(`USE app SELECT id, name, avatar_url
-         FROM \`users\`
-          WHERE id IN ("${str}")`);
+        .db('app').query(`SELECT ??, ??, ??
+         FROM ?? WHERE id IN (?)`, ['id', 'name', 'avatar_url', str]);
     }
 
     public getByLogin(login) {
         return this
         .sqlContext
-        .query(`USE app SELECT id, name, login, password
-         FROM \`users\` WHERE login
-          IN '${login}'`);
+        .db('app').query(`SELECT ??, ??, ??, ??
+         FROM ?? WHERE login = ?`, ['app', 'id', 'name', 'login', 'password', 'users', login]);
         
     }
 
     public checkAccess(login, password) {
-        let sql = `SELECT (login, password)
-         FROM \`users\` WHERE 'login' = ${login}, 'password' = ${password}`;
-         return this.sqlContext.query(sql);
+        let columns = ['login', 'password'];
+        let sql = `SELECT * FROM ?? WHERE login = ? AND password = ?`;
+         return this.sqlContext.db('app').query(sql, ['users', login, password]);
     }
 
     public checkExist(login) {
-        let sql = `SELECT login FROM \`users\` WHERE 'login' = ${login}`;
-        return this.sqlContext.query(sql);
+        let sql = `SELECT ?? FROM ?? WHERE login = ?`;
+        return this.sqlContext.db('app').query(sql, ['login', 'users', login]);
     }
 
     public checkSubscribe(user_id, object) {

@@ -61,20 +61,24 @@ export default class MessageDataProvider extends DataProvider {
         return new Promise((resolve, reject) => {
             this
             .sqlContext
-            .query(`USE chats CREATE TABLE \`chat_${chat_id}\``)
+            .query(`USE chats CREATE TABLE \`chat_${chat_id}\` 
+                (id TEXT(100),
+                maker_id TEXT(100),
+                content TEXT(100),
+                time INT(50))`)
             .then((res) => {
-                this
-                .sqlContext
-                .query(`USE containers INSERT INTO \`user_${user_1_id}\`
-                    (type, object_id, last_message)
-                    VALUES ('chat', '${chat_id}', NULL)`)
-                .then((res) => {
-                    this
-                    .sqlContext
-                    .query(`USE containers INSERT INTO \`user_${user_2_id}\`
-                        (type, object_id, last_data)
-                        VALUES ('chat', '${chat_id}', NULL)`)
-                    .then((res) => {
+                // this
+                // .sqlContext
+                // .query(`USE containers INSERT INTO \`user_${user_1_id}\`
+                //     (type, object_id, last_message)
+                //     VALUES ('chat', '${chat_id}', NULL)`)
+                // .then((res) => {
+                //     this
+                //     .sqlContext
+                //     .query(`USE containers INSERT INTO \`user_${user_2_id}\`
+                //         (type, object_id, last_data)
+                //         VALUES ('chat', '${chat_id}', NULL)`)
+                //     .then((res) => {
                         let sparql =
                         `${this.sparqlHelper.prefixes}
                         INSERT DATA { 
@@ -86,8 +90,8 @@ export default class MessageDataProvider extends DataProvider {
                         .then(() => {
                             resolve();
                         })
-                    });
-                });
+                //  });
+                //});
             });
         });
     }

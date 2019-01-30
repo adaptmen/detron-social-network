@@ -10,6 +10,7 @@ var SqlContext = (function () {
             return new Promise(function (resolve, reject) {
                 var connection = mysql.createConnection({
                     host: config['sql_db']['host'],
+                    port: config['sql_db']['port'],
                     user: config['sql_db']['user'],
                     password: config['sql_db']['password']
                 });

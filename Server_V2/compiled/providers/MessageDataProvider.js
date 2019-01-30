@@ -43,22 +43,12 @@ var MessageDataProvider = (function (_super) {
         return new Promise(function (resolve, reject) {
             _this
                 .sqlContext
-                .query("USE chats CREATE TABLE `chat_" + chat_id + "`")
+                .query("USE chats CREATE TABLE `chat_" + chat_id + "` \n                (id TEXT(100),\n                maker_id TEXT(100),\n                content TEXT(100),\n                time INT(50))")
                 .then(function (res) {
-                _this
-                    .sqlContext
-                    .query("USE containers INSERT INTO `user_" + user_1_id + "`\n                    (type, object_id, last_message)\n                    VALUES ('chat', '" + chat_id + "', NULL)")
-                    .then(function (res) {
-                    _this
-                        .sqlContext
-                        .query("USE containers INSERT INTO `user_" + user_2_id + "`\n                        (type, object_id, last_data)\n                        VALUES ('chat', '" + chat_id + "', NULL)")
-                        .then(function (res) {
-                        var sparql = _this.sparqlHelper.prefixes + "\n                        INSERT DATA { \n                            GRAPH <" + _this.sparqlHelper.graphs_uri.chats + "> \n                            { chats:chat_" + chat_id + " type:id \"" + chat_id + "\" ;\n                                chats:privacy \"private\" ;\n                                type:role \"chat\" . } }";
-                        _this.query(sparql, 'update')
-                            .then(function () {
-                            resolve();
-                        });
-                    });
+                var sparql = _this.sparqlHelper.prefixes + "\n                        INSERT DATA { \n                            GRAPH <" + _this.sparqlHelper.graphs_uri.chats + "> \n                            { chats:chat_" + chat_id + " type:id \"" + chat_id + "\" ;\n                                chats:privacy \"private\" ;\n                                type:role \"chat\" . } }";
+                _this.query(sparql, 'update')
+                    .then(function () {
+                    resolve();
                 });
             });
         });

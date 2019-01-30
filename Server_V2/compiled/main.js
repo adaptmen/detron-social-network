@@ -5,6 +5,7 @@ var GooglePhoneLib = require("google-libphonenumber");
 var http = require("http");
 var express = require("express");
 var busboy = require("connect-busboy");
+var universal_cookie_1 = require("universal-cookie");
 var socketIo = require("socket.io");
 var path = require("path");
 var config = require('./config.json');
@@ -39,6 +40,30 @@ var truePhone = function (phoneNum) {
 var checkInStore = function (phone) {
     return !!store.get(String(phone));
 };
+app.get('/*', function (req, res) {
+    var cookies = new universal_cookie_1.default(req.headers.cookie);
+    if (cookies.get('t')) {
+        var tStatus = authRepository.checkToken(req.universalCookies.get('t'));
+        if (tStatus == AppTypes_1.default.TIME_BANNED) {
+            cookies.remove('t');
+            res.redirect('/auth');
+        }
+        if (tStatus == AppTypes_1.default.NOT_EXIST) {
+            cookies.remove('t');
+            res.redirect('/auth');
+        }
+        if (tStatus == AppTypes_1.default.SUCCESS) {
+            res.redirect('/app');
+        }
+    }
+    else {
+        res.redirect('/auth');
+    }
+});
+app.get('/auth', function (req, res) {
+    res.status = 200;
+    res.sendFile(path.join(__dirname, './public', 'Auth.html'));
+});
 app.get('/auth/login', function (req, res) {
     authRepository
         .login(req.url.params.login, req.url.params.password)
@@ -49,7 +74,8 @@ app.get('/auth/login', function (req, res) {
         }
         else if (typeof (result) === 'string') {
             res.status = 200;
-            res.cookie.set('t', result);
+            var cookies = new universal_cookie_1.default(req.headers.cookie);
+            cookies.set('t', result);
             res.end(result);
         }
     });
@@ -64,27 +90,36 @@ app.get('/auth/signup', function (req, res) {
         }
         else if (typeof (result) === 'string') {
             res.status = 200;
-            res.cookie.set('t', result);
-            res.end("Signup success");
+            var cookies = new universal_cookie_1.default(req.headers.cookie);
+            cookies.set('t', result);
+            res.redirect('/app');
         }
     });
 });
 app.get('/app', function (req, res) {
-    if (req.cookie.t) {
-        var status_1 = authRepository.checkToken(req.cookie.t);
+    var cookies = new universal_cookie_1.default(req.headers.cookie);
+    if (cookies.get('t')) {
+        var status_1 = authRepository.checkToken(cookies.get('t'));
         if (status_1 === AppTypes_1.default.NOT_EXIST) {
             res.status = 403;
+            res.redirect('/auth');
+            cookies.remove('t');
             res.end("Token failed");
         }
         else if (status_1 === AppTypes_1.default.TIME_BANNED) {
             res.status = 403;
+            res.redirect('/auth');
+            cookies.remove('t');
             res.end("Time banned");
         }
         else if (status_1 === AppTypes_1.default.SUCCESS) {
             res.status = 200;
-            res.sendFile(path.join(__dirname, '../public', 'index.html'));
-            res.cookie.set("t", authRepository.updateToken(req.cookie.t));
+            cookies.set("t", authRepository.updateToken(cookies.get('t')));
+            res.sendFile(path.join(__dirname, './public', 'index.html'));
         }
+    }
+    else {
+        res.redirect('/auth');
     }
 });
 app.get('/disk/:object_fid/:file_id', function (req, res) {

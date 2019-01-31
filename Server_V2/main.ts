@@ -134,28 +134,6 @@ app.get('/*.js', (req, res) => {
     res.sendFile(path.join(__dirname, './public', `${req.params['0']}.js`));
 });
 
-// app.get('/*', (req, res) => {
-//     console.log(req.url);
-//     let cookies = new Cookies(req, res)
-//     if (cookies.get('t')) {
-//         let tStatus = authRepository.checkToken(cookies.get('t'));
-//         if (tStatus == AppTypes.TIME_BANNED) {
-//             cookies.remove('t');
-//             res.redirect('/auth');
-//         }
-//         if (tStatus == AppTypes.NOT_EXIST) {
-//             cookies.remove('t');
-//             res.redirect('/auth');
-//         }
-//         if (tStatus == AppTypes.SUCCESS) {
-//             res.redirect('/app');
-//         }
-//     }
-//     else {
-//         res.redirect('/auth');
-//     }
-// });
-
 app.get('/disk/:object_fid/:file_id', (req, res) => {
     
 });

@@ -3,6 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import * as io from 'socket.io-client';
 import env from '../environments/environment.prod';
 import { CookieService } from 'ngx-cookie-service';
+import SocketTypes from '../app/SocketTypes';
 
 @Injectable()
 export default class SocketProvider implements OnInit {
@@ -24,6 +25,8 @@ export default class SocketProvider implements OnInit {
 
     }
 
+    public sendRequest;
+
     public initConnection() {
 
         this.socket_url = `${this.host}?token=${this.cookieService.get('token')}`;
@@ -39,7 +42,7 @@ export default class SocketProvider implements OnInit {
 
         this.on = (event_name): Subject<any> => {
             let subj = new Subject<any>();
-            this.socket.off(event_name);
+            //this.socket.off(event_name);
             this.socket.once(event_name, (data) => {
                 subj.next(data);
                 console.log('Server event: ' + event_name, data);
@@ -52,6 +55,19 @@ export default class SocketProvider implements OnInit {
             console.log('Emit event: ', { event_name, message });
             this.socket.emit(event_name, message, function (data) {
                 subj.next(data);
+            });
+            return subj;
+        };
+
+        this.sendRequest = (type, msg) => {
+            let subj = new Subject();
+            let id = this.securityHelper.generateRequestId();
+            this.socket.emit(SocketTypes.SOCKET_REQUEST, {
+                id, type, msg
+            });
+            this.socket.on(`${type}_${id}`, (ans) => {
+                subj.next(ans);
+                this.socket.off(`${type}_${id}`);
             });
             return subj;
         };

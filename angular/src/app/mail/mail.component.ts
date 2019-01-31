@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import Chat from '../../models/Chat';
+import { Router } from '@angular/router';
+import { AppService } from '@shared/app.service';
 
 @Component({
   selector: 'app-mail',
@@ -8,13 +9,11 @@ import Chat from '../../models/Chat';
 })
 export class MailComponent implements OnInit {
 
-	constructor(private appService: AppService) { }
-
-	public chats: Chat[] = [];
+	constructor(private appService: AppService, private router: Router) { }
 
 	ngOnInit() {
 		this.appService.app_init.subscribe((app_data) => {
-			this.chats = app_data.chats;
+			this.router.navigate([`/${app_data.chats.keys()[0]}`]);
 		});
 	}
 

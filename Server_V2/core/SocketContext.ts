@@ -36,8 +36,6 @@ export default class SocketContext {
 		});
 
 		this.io.sockets.on('connection', (socket: any) => {
-
-			console.log("Connect", socket.id);
 			const token = socket.handshake.query.t;
 
 			this
@@ -49,7 +47,7 @@ export default class SocketContext {
 				};
 				console.log('Connected user: ', socket.user.id);
 
-				socket.emit(SocketTypes.USER_INIT, user);
+				socket.emit(SocketTypes.APP_INIT, user);
 
 				socket.on('disconnect', () => {
 					console.log('Disconnect user: ', socket.user.id);
@@ -57,23 +55,47 @@ export default class SocketContext {
 
 			});
 
-			socket.on(SocketTypes.GET_UPLOAD_TOKEN, (info) => {
-				this
-				.dbContext
-				.checkUploadAccess(socket.user.id, info.object_fid)
-				.then((res) => {
-					if (res === AppTypes.SUCCESS) {
-						socket.emit(
-							SocketTypes.GET_UPLOAD_TOKEN,
-							this.dbContext
-							.generateUploadToken(socket.user.id, info.object_fid)
-						);
-						
+			let prosocket = (() => {
+				let listens = {};
+				return {
+					on: (type, listener) => {
+						if (!listens[type]) {
+							listens[type] = [];
+							listens[type].push(listener);
+						}
 					}
-					else {
-						socket.emit(SocketTypes.GET_UPLOAD_TOKEN, 'error');
-					}
-				});
+				}
+			})();
+
+			let sendAnswer = (id, type, msg) => {
+				socket.emit(`${type}_${id}`, msg);
+			};
+
+			socket.on(SocketTypes.SOCKET_REQUEST, (body) => {
+				let r_id = body['id'];
+				let r_type = body['type'];
+				let r_msg = body['msg'];
+
+				if (r_type == SocketTypes.GET_UPLOAD_TOKEN) {
+					this
+					.dbContext
+					.checkUploadAccess(socket.user.id, r_msg.object_fid)
+					.then((res) => {
+						if (res === AppTypes.SUCCESS) {
+							sendAnswer(
+								r_id,
+								SocketTypes.GET_UPLOAD_TOKEN,
+								this.dbContext
+								.generateUploadToken(socket.user.id, r_msg.object_fid)
+							);
+							
+						}
+						else {
+							sendAnswer(r_id, SocketTypes.GET_UPLOAD_TOKEN, SocketTypes.DENIED);
+						}
+					});
+				}
+
 			});
 
 			socket.on(SocketTypes.GET_CHATS, () => {

@@ -1,0 +1,7 @@
+<div id="c1">
+	<div id="c2">
+		<div class="tab" *ngFor="let tab of appService.history_tabs" routerLink="{{ tab.url }}">
+			<img src="{{ tab.image_url }}" alt="">
+		</div>
+	</div>
+</div>

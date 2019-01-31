@@ -1,0 +1,15 @@
+<div id="header">
+	{{ appService.chats[chat_id].name }}
+</div>
+<div id="messages">
+	<div class="msg {{ msg.maker_id == appService.user.id ? 'right' : 'left' }}" *ngFor="let msg of appService.chats[chat_id].messages">
+		<div class="maker" routerLink="/user/{{ msg.maker_id }}">
+			<img src="{{ msg.maker_avatar }}" alt="">
+			<div class="maker_name">{{ msg.maker_name }}</div>
+		</div>
+		<div class="time">{{ msg.time }}</div>
+		<div class="content">
+			{{ msg.content }}
+		</div>
+	</div>
+</div>

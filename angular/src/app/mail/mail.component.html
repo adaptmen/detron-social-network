@@ -1,6 +1,11 @@
-<div *ngFor='let chat of chats' routerLink="/mail/{{chat.id}}">
-	<div class="avatar">
-		<img src="{{ chat.avatar_link }}" alt="">
+<div id="left">
+	<div *ngFor='let chat of appService.chats | async' routerLink="/mail/{{chat.id}}">
+		<div class="avatar">
+			<img src="{{ chat.avatar_link }}" alt="">
+		</div>
+		<div>{{ chat.name }}</div>
 	</div>
-	<div>{{ chat.name }}</div>
+</div>
+<div id="right">
+	<router-outlet></router-outlet>
 </div>

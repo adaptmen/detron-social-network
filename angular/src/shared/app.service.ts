@@ -10,9 +10,9 @@ export class AppService implements OnInit {
 	constructor(private socketProvider: SocketProvider) {
 		this.socketProvider.onConnect.subscribe(() => {
 			this.socketProvider.on(SocketTypes.APP_INIT).subscribe((app_data) => {
-				this.app_init.next(app_data);
 				this.user = app_data['user'];
 				this.chats = app_data['chats'];
+				this.app_init.next(app_data);
 			});
 		});
 	}

@@ -27,6 +27,7 @@ export class MenuComponent implements OnInit {
 		this.appService.app_init.subscribe((data) => {
 			this.menu_links[0]['link'] = `/page/${this.appService.getUserId()}`;
 			this.menu_links[5]['link'] = `/disk/${this.appService.getUserId()}`;
+			console.log(this.menu_links);
 		});
 	}
 

@@ -12,7 +12,7 @@ export class MenuComponent implements OnInit {
 	constructor(public appService: AppService) { }
 
 	public menu_links = [
-		{ label: "Моя страница", link: `/user/${this.appService.user.id}` },
+		{ label: "Моя страница", link: `/page/${this.appService.user.id}` },
 		{ label: "Сообщения", link: `/mail` },
 		{ label: "Новости", link: `/news` },
 		{ label: "Друзья", link: `/friends` },

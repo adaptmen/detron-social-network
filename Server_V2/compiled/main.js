@@ -73,7 +73,7 @@ auth_route.post('/signup', function (req, res) {
             res.status = 403;
             res.end("User exist");
         }
-        else if (typeof (result) === 'string') {
+        else if (!isNaN(result) && result) {
             res.status = 200;
             var cookies = new Cookies(req, res);
             cookies.set('t', result, { expires: new Date(Date.now() + 1000 * 60 * 60) });
@@ -124,7 +124,12 @@ app.get('/*.ico', function (req, res) {
     res.sendFile(path.join(__dirname, './public', req.params['0'] + ".ico"));
 });
 app.get('/*.ttf', function (req, res) {
-    res.sendFile(path.join(__dirname, './public/fonts/', req.params['0'] + ".ttf"));
+    try {
+        res.sendFile(path.join(__dirname, './public/', req.params['0'] + ".ttf"));
+    }
+    catch (e) {
+        res.sendFile(path.join(__dirname, './public/assets/', req.params['0'] + ".ttf"));
+    }
 });
 app.get('/disk/:object_fid/:file_id', function (req, res) {
 });

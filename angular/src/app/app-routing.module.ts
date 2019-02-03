@@ -15,8 +15,8 @@ const routes: Routes = [
 	{ path: 'page/:id', component: PageComponent },
 	{ path: 'mail', component: MailComponent },
 	{ path: 'mail/:chat_id', component: ChatComponent },
-	{ path: 'friend', component: FriendComponent },
-	{ path: 'friend/:id', component: FriendComponent },
+	{ path: 'friends', component: FriendComponent },
+	{ path: 'friends/:id', component: FriendComponent },
 	{ path: 'search', component: SearchComponent },
 	{ path: 'settings', component: SettingsComponent }
 ];

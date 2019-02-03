@@ -1,25 +1,30 @@
 const uniqid = require('uniqid');
+const crypto = require('crypto');
 
 export default class SecurityHelper {
 
+  private get_r(length) {
+    return crypto.randomBytes(length / 2).toString('hex')
+  }
+
   public generateId() {
-    return `${uniqid.process()}-${uniqid.time()}-${uniqid.process()}-${uniqid.time()}-${uniqid.process()}`;
+    return `${this.get_r(14)}-${this.get_r(10)}`;
   }
 
   public generateFileId() {
-    return `${uniqid.process(uniqid.time())}-${uniqid.time(uniqid.time())}-${uniqid.process(uniqid.time())}`;
+    return `${this.get_r(14)}-${this.get_r(10)}-${this.get_r(20)}`;
   }
 
   public generateLongId() {
-    return `${uniqid.process()}${uniqid.time()}${uniqid.process()}${uniqid.time()}${uniqid.process()}${uniqid.process()}${uniqid.time()}${uniqid.process()}${uniqid.time()}${uniqid.process()}${uniqid.process()}${uniqid.time()}${uniqid.process()}${uniqid.time()}${uniqid.process()}${uniqid.process()}${uniqid.time()}${uniqid.process()}${uniqid.time()}${uniqid.process()}`;
+    return `${this.get_r(14)}-${this.get_r(10)}-${this.get_r(20)}-${this.get_r(14)}-${this.get_r(10)}-${this.get_r(20)}`;
   }
 
   public generateToken() {
-    return `${ uniqid( uniqid( uniqid( uniqid( uniqid( uniqid() ) ) ) ) ) }`;
+    return `${this.get_r(100)}`;
   }
 
   public generateAuthToken() {
-    return `${ uniqid( uniqid( uniqid( ) ) ) }`;
+    return `${this.get_r(14)}-${this.get_r(10)}`;
   }
 
   public generateSmsCode() {

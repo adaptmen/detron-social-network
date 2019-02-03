@@ -45,17 +45,16 @@ export class SocketProvider implements OnInit {
 
         this.on = (event_name): Subject<any> => {
             let subj = new Subject<any>();
-            //this.socket.off(event_name);
             this.socket.on(event_name, (data) => {
                 subj.next(data);
-                console.log('<- ' + event_name);
+                if (env.production) console.log('<- ' + event_name);
             });
             return subj;
         };
 
         this.emit = (event_name: string, message: any): Subject<any> => {
             let subj = new Subject<any>();
-            console.log('-> ', event_name, message);
+            if (env.production) console.log('-> ', event_name, message);
             this.socket.emit(event_name, message, function (data) {
                 subj.next(data);
             });

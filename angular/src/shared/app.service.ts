@@ -9,9 +9,7 @@ export class AppService implements OnInit {
 
 	constructor(private socketProvider: SocketProvider) {
 		this.socketProvider.onConnect.subscribe(() => {
-			console.log('[AppService] onConnect');
 			this.socketProvider.on(SocketTypes.APP_INIT).subscribe((app_data) => {
-				console.log(app_data);
 				this.app_init.next(app_data);
 			});
 		});

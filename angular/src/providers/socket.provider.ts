@@ -47,7 +47,7 @@ export class SocketProvider implements OnInit {
             let subj = new Subject<any>();
             this.socket.on(event_name, (data) => {
                 subj.next(data);
-                if (!env.production) console.log('<- ' + event_name);
+                if (!env.production) console.log('<- ' + event_name, data);
             });
             return subj;
         };

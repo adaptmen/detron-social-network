@@ -9,7 +9,9 @@ import { AppService } from '@shared/app.service';
 export class MenuComponent implements OnInit {
 
 
-	constructor(public appService: AppService) { }
+	constructor(public appService: AppService) {
+
+	}
 
 	public menu_links = [
 		{ label: "Моя страница", link: `/page/${this.appService.user.id}` },
@@ -22,6 +24,10 @@ export class MenuComponent implements OnInit {
 	];
 
 	ngOnInit() {
+		this.appService.app_init.subscribe((data) => {
+			this.menu_links[0]['link'] = `/page/${this.appService.getUserId()}`;
+			this.menu_links[5]['link'] = `/disk/${this.appService.getUserId()}`;
+		});
 	}
 
 }

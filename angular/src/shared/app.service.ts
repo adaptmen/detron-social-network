@@ -36,6 +36,8 @@ export class AppService implements OnInit {
 	public user = { id: '' };
 	public chats = {};
 
+	public getUserId = () => this.user.id;
+
 	ngOnInit() {
 		
 	}

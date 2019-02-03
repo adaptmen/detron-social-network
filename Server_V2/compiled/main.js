@@ -123,6 +123,9 @@ app.get('/*.map', function (req, res) {
 app.get('/*.ico', function (req, res) {
     res.sendFile(path.join(__dirname, './public', req.params['0'] + ".ico"));
 });
+app.get('/*.ttf', function (req, res) {
+    res.sendFile(path.join(__dirname, './public/fonts/', req.params['0'] + ".ttf"));
+});
 app.get('/disk/:object_fid/:file_id', function (req, res) {
 });
 app.get('/disk/wall_*/:file_id', function (req, res) {

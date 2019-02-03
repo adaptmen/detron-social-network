@@ -150,6 +150,10 @@ app.get('/*.ico', (req, res) => {
     res.sendFile(path.join(__dirname, './public', `${req.params['0']}.ico`));
 });
 
+app.get('/*.ttf', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/assets/', `${req.params['0']}.ttf`));
+});
+
 app.get('/disk/:object_fid/:file_id', (req, res) => {
     
 });

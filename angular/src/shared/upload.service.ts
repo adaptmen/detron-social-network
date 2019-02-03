@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpService } from './http.service';
 import { SocketProvider } from '@providers/socket.provider';
 import { Subject } from 'rxjs';
+import SocketTypes from '@app/SocketTypes';
+import env from '@environment/environment';
 
 @Injectable()
 export class UploadService {
@@ -17,7 +19,7 @@ export class UploadService {
 		.sendRequest(SocketTypes.GET_UPLOAD_TOKEN, { object_fid })
 		.subscribe((ans) => {
 			if (ans === SocketTypes.DENIED) {
-				subj.next(SocketType.DENIED);
+				subj.next(SocketTypes.DENIED);
 			}
 			else {
 				subj.next(ans);

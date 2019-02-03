@@ -28,8 +28,8 @@ var SqlContext = (function () {
                         if (results.length == 0)
                             return resolve(AppTypes_1.default.EMPTY);
                         if (results.length == 1)
-                            return resolve(results[0]);
-                        return resolve(results);
+                            return resolve(JSON.parse(JSON.stringify(results[0])));
+                        return resolve(JSON.parse(JSON.stringify(results)));
                     });
                     console.log(q.sql);
                 });

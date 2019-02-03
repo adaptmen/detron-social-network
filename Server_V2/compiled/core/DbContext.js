@@ -42,6 +42,21 @@ var DbContext = (function () {
     DbContext.prototype.getUser = function (login) {
         return this.userProvider.getByLogin(login);
     };
+    DbContext.prototype.getUserInit = function (login) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this
+                .userProvider
+                .getUserInit(login)
+                .then(function (user) {
+                _this
+                    .getChats(user.id)
+                    .then(function (chats) {
+                    resolve({ user: user, chats: chats });
+                });
+            });
+        });
+    };
     DbContext.prototype.getChats = function (user_id) {
         var _this = this;
         return new Promise(function (resolve, reject) {

@@ -4,6 +4,7 @@ import DbContext from './DbContext';
 import AuthRepository from './AuthRepository';
 import AppTypes from './AppTypes';
 import SocketTypes from './SocketTypes';
+import * as cookie from 'cookie';
 
 export default class SocketContext {
 
@@ -20,12 +21,14 @@ export default class SocketContext {
 		authRepository: AuthRepository) {
 
 		this.dbContext = dbContext;
+		this.authRepository = authRepository;
 		this.io = io;
 
 		console.log('socket io started');
 		
 		this.io.use((_socket, next) => {
-			const authToken = _socket.handshake.query.t;
+			let cookies = cookie.parse(_socket.handshake.headers['cookie']);
+			const authToken = cookies['t'];
 			const tokenStatus = this.authRepository.checkToken(authToken);
 			if (tokenStatus === AppTypes.SUCCESS) {
 				next();
@@ -36,36 +39,26 @@ export default class SocketContext {
 		});
 
 		this.io.sockets.on('connection', (socket: any) => {
-			const token = socket.handshake.query.t;
+			const token = cookie.parse(socket.handshake.headers['cookie'])['t'];
 
 			this
 			.dbContext
-			.getUser(this.authRepository.getByToken(token).login)
-			.then((user: any) => {
-				socket.user = {
-					id: user.id
-				};
-				console.log('Connected user: ', socket.user.id);
+			.getUserInit(this.authRepository.getByToken(token).login)
+			.then((data: any) => {
+				console.log(data);
+				socket.user = data.user;
+				console.log('Connected user:', socket.user.id);
 
-				socket.emit(SocketTypes.APP_INIT, user);
+				setTimeout(() => {
+					socket.emit(SocketTypes.APP_INIT, data);
+					console.log(socket.user.id, SocketTypes.APP_INIT);
+				}, 1000);
 
 				socket.on('disconnect', () => {
 					console.log('Disconnect user: ', socket.user.id);
 				});
 
 			});
-
-			let prosocket = (() => {
-				let listens = {};
-				return {
-					on: (type, listener) => {
-						if (!listens[type]) {
-							listens[type] = [];
-							listens[type].push(listener);
-						}
-					}
-				}
-			})();
 
 			let sendAnswer = (id, type, msg) => {
 				socket.emit(`${type}_${id}`, msg);

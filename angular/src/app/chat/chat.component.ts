@@ -9,12 +9,12 @@ import { ActivatedRoute} from '@angular/router';
 })
 export class ChatComponent implements OnInit {
 
-	constructor(private appService: AppService, private route: ActivatedRoute) { }
+	constructor(public appService: AppService, public route: ActivatedRoute) { }
 
 	public chat_id;
 
 	ngOnInit() {
-		let chat_id = this.route.snapshot.paramMap.get("chat_id");
+		this.chat_id = this.route.snapshot.paramMap.get("chat_id");
 
 	}
 

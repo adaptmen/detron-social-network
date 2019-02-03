@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpService } from '@shared/http.service';
 import { UploadService } from '@shared/upload.service';
+import SocketTypes from '@app/SocketTypes';
 
 
 @Component({
@@ -10,9 +11,11 @@ import { UploadService } from '@shared/upload.service';
 })
 export class UploadComponent implements OnInit {
 
-	constructor(private httpService: HttpService, private uploadService: UploadService) { }
+	constructor(public httpService: HttpService, public uploadService: UploadService) { }
 
 	public preview = {};
+
+	public object_fid = '';
 
 	ngOnInit() {
 	}
@@ -25,7 +28,7 @@ export class UploadComponent implements OnInit {
 
 		    this
 		    .uploadService
-		    .uploadFile(file)
+		    .uploadFile(file, this.object_fid)
 		    .subscribe((ans) => {
 		    	if (ans === SocketTypes.DENIED) {
 

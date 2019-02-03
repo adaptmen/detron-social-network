@@ -1,10 +1,25 @@
 {
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "*.spec.ts"
+  ],
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
+    "paths": {
+      "@shared/*": ["./src/shared/*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@app/*": ["./src/app/*"],
+      "@models/*": ["./src/models/*"],
+      "@environment/*": ["./src/environments/*"],
+      "@providers/*": ["./src/providers/*"]
+    },
     "sourceMap": true,
-    "declaration": false,
+    "declaration": true,
     "module": "es2015",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,

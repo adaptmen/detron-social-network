@@ -9,10 +9,10 @@ import { AppService } from '@shared/app.service';
 })
 export class MailComponent implements OnInit {
 
-	constructor(private appService: AppService, private router: Router) { }
+	constructor(public appService: AppService, public router: Router) { }
 
 	ngOnInit() {
-		this.appService.app_init.subscribe((app_data) => {
+		this.appService.app_init.subscribe((app_data: any) => {
 			this.router.navigate([`/${app_data.chats.keys()[0]}`]);
 		});
 	}

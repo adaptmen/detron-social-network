@@ -71,6 +71,15 @@ export default class UserDataProvider extends DataProvider {
         
     }
 
+    public getUserInit(login) {
+        let fields = ['id', 'name', 'login', 'password', 'avatar_url', 'age', "city"];
+        return this
+        .sqlContext
+        .db('app').query(`SELECT ??
+         FROM ?? WHERE login = ?`,
+          [fields, 'users', login]);
+    }
+
     public checkAccess(login, password) {
         let columns = ['login', 'password'];
         let sql = `SELECT * FROM ?? WHERE login = ? AND password = ?`;

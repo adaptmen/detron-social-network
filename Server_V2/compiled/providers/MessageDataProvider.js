@@ -35,7 +35,7 @@ var MessageDataProvider = (function (_super) {
         });
     };
     MessageDataProvider.prototype.getChats = function (user_id) {
-        var sparql = this.sparqlHelper.prefixes + "\n            SELECT ?chat_id ?friend_id\n            {\n                GRAPH <" + this.sparqlHelper.graphs_uri.users + ">  {\n                    users:user_" + user_id + " type:subscribe ?chat .\n                    ?friend type:subscribe ?chat;\n                    type:id ?friend_id.\n                }\n                OPTIONAL {\n                    GRAPH <" + this.sparqlHelper.graphs_uri.chats + ">  {\n                        ?chat type:role \"chat\" ;\n                        type:id ?chat_id .\n                    }\n                }\n            }";
+        var sparql = this.sparqlHelper.prefixes + "\n            SELECT ?chat_id ?friend_id ?friend_name\n            {\n                GRAPH <" + this.sparqlHelper.graphs_uri.users + ">  {\n                    users:user_" + user_id + " type:subscribe ?chat .\n                    ?friend type:subscribe ?chat;\n                    type:id ?friend_id;\n                    users:name ?friend_name\n                }\n                OPTIONAL {\n                    GRAPH <" + this.sparqlHelper.graphs_uri.chats + ">  {\n                        ?chat type:role \"chat\" ;\n                        type:id ?chat_id .\n                    }\n                }\n            }";
         return this.query(sparql, 'query');
     };
     MessageDataProvider.prototype.createChat = function (chat_id, user_1_id, user_2_id) {

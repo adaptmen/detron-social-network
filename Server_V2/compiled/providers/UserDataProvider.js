@@ -53,6 +53,12 @@ var UserDataProvider = (function (_super) {
             .sqlContext
             .db('app').query("SELECT ??, ??, ??, ??\n         FROM ?? WHERE login = ?", ['app', 'id', 'name', 'login', 'password', 'users', login]);
     };
+    UserDataProvider.prototype.getUserInit = function (login) {
+        var fields = ['id', 'name', 'login', 'password', 'avatar_url', 'age', "city"];
+        return this
+            .sqlContext
+            .db('app').query("SELECT ??\n         FROM ?? WHERE login = ?", [fields, 'users', login]);
+    };
     UserDataProvider.prototype.checkAccess = function (login, password) {
         var columns = ['login', 'password'];
         var sql = "SELECT * FROM ?? WHERE login = ? AND password = ?";

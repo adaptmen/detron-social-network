@@ -1,3 +1,61 @@
-<p>
-  page works!
-</p>
+<div *ngIf="page.user" id="page">
+	<div id="info_block">
+		<div id="avatar">
+			<img src="page.user.avatar_link" alt="">
+		</div>
+		<div id="person_info">
+			<div id="name">{{ page.user.name }}</div>
+			<div id="status">{{ page.user.status }}</div>
+			<div id="age">{{ page.user.age }}</div>
+			<div id="city">{{ page.user.city }}</div>
+		</div>
+		<div id="stat_info">
+			<div id="friends">
+				<div class="label">Друзья</div>
+				<div class="count">
+					{{ page.user.friends_count }}
+				</div>
+			</div>
+			<div id="subscribers">
+				<div class="label">Подписчики</div>
+				<div class="count">
+					{{ page.wall.subscribers_count }}
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="wall">
+		<div class="post" *ngFor="let post of page.wall.posts">
+			<div class="maker_info">
+				<div class="avatar">
+					<img src="{{ post.maker_avatar_url }}" alt="">
+				</div>
+				<div class="maker_name">{{ post.maker_name }}</div>
+				<div class="time">{{ post.time }}</div>
+			</div>
+			<div class="content">
+				{{ post.content }}
+			</div>
+			<div class="stat_info">
+				<div class="likes_count">
+					{{ post.likes_count }}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div *ngIf="error" id="error">
+	Произошла ошибка
+</div>
+
+
+
+
+
+
+
+
+
+
+
+

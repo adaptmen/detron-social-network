@@ -9,7 +9,7 @@ import { AppService } from '@shared/app.service';
 export class MenuComponent implements OnInit {
 
 
-	constructor(private appService: AppService) { }
+	constructor(public appService: AppService) { }
 
 	public menu_links = [
 		{ label: "Моя страница", link: `/user/${this.appService.user.id}` },

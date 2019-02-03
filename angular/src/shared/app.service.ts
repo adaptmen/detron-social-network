@@ -1,15 +1,25 @@
 import { Injectable, OnInit } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { SocketProvider } from '@providers/socket.provider';
-import RequestTypes from '../app/RequestTypes';
+import SocketTypes from '../app/SocketTypes';
 
-export default class AppService implements OnInit {
+
+@Injectable()
+export class AppService implements OnInit {
 
 	constructor(private socketProvider: SocketProvider) {
-
+		this.socketProvider.onConnect.subscribe(() => {
+			console.log('[AppService] onConnect');
+			this.socketProvider.on(SocketTypes.APP_INIT).subscribe((app_data) => {
+				console.log(app_data);
+				this.app_init.next(app_data);
+			});
+		});
 	}
 
-	public current_url = '';
+	public current_url: any;
+	public friends: any;
+	public history_tabs: any;
 
 	public app_init = new Subject();
 
@@ -23,10 +33,10 @@ export default class AppService implements OnInit {
 	public news_notifies = {};
 	public news_world_notify_count = 0;
 
+	public user = { id: '' };
+	public chats = {};
+
 	ngOnInit() {
-		this.socketProvider.on(RequestTypes.APP_INIT, (app_data) => {
-			this.app_init.next(app_data);
-		});
 		
 	}
 

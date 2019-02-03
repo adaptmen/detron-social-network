@@ -40,12 +40,13 @@ export default class MessageDataProvider extends DataProvider {
     public getChats(user_id) {
         let sparql =
             `${this.sparqlHelper.prefixes}
-            SELECT ?chat_id ?friend_id
+            SELECT ?chat_id ?friend_id ?friend_name
             {
                 GRAPH <${this.sparqlHelper.graphs_uri.users}>  {
                     users:user_${user_id} type:subscribe ?chat .
                     ?friend type:subscribe ?chat;
-                    type:id ?friend_id.
+                    type:id ?friend_id;
+                    users:name ?friend_name
                 }
                 OPTIONAL {
                     GRAPH <${this.sparqlHelper.graphs_uri.chats}>  {

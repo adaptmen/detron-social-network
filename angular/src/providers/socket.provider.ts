@@ -1,35 +1,38 @@
 import { Injectable, OnInit } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import * as io from 'socket.io-client';
-import env from '../environments/environment.prod';
+import env from '@environment/environment';
 import { CookieService } from 'ngx-cookie-service';
 import SocketTypes from '../app/SocketTypes';
+import { SecurityHelper } from '@helpers/security.helper';
 
 @Injectable()
-export default class SocketProvider implements OnInit {
+export class SocketProvider implements OnInit {
 
-    private host = `http://${env.server.url.host}:${env.server.url.port}`;
+    private host = `http://${env.api.host}:4000`;
     private socket_url: string;
 
     public inited = false;
     public socket: any;
 
+    public onConnect = new Subject();
+
     public emit: (event_name, message) => Subject<any>;
     public on: (event_name) => Subject<any>;
 
-    constructor(private cookieService: CookieService) {
-    	this.initConnection();
+    constructor(private cookieService: CookieService,
+     private securityHelper: SecurityHelper) {
+    	setTimeout(() => { this.initConnection()}, 100);
     }
 
     ngOnInit() {
-
     }
 
     public sendRequest;
 
     public initConnection() {
 
-        this.socket_url = `${this.host}?token=${this.cookieService.get('token')}`;
+        this.socket_url = `${this.host}`;
 
         console.log(this.socket_url);
 
@@ -37,22 +40,22 @@ export default class SocketProvider implements OnInit {
 
         this.socket.on('connect', () => {
 	        this.connect();
-	        this.inited = true;
+	        this.onConnect.next();
 	    });
 
         this.on = (event_name): Subject<any> => {
             let subj = new Subject<any>();
             //this.socket.off(event_name);
-            this.socket.once(event_name, (data) => {
+            this.socket.on(event_name, (data) => {
                 subj.next(data);
-                console.log('Server event: ' + event_name, data);
+                console.log('<- ' + event_name);
             });
             return subj;
         };
 
         this.emit = (event_name: string, message: any): Subject<any> => {
             let subj = new Subject<any>();
-            console.log('Emit event: ', { event_name, message });
+            console.log('-> ', event_name, message);
             this.socket.emit(event_name, message, function (data) {
                 subj.next(data);
             });

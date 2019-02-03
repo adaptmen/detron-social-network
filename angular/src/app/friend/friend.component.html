@@ -1,0 +1,6 @@
+<div *ngFor="let friend of appService.friends" class="friend">
+	<div class="avatar">
+		<img src="{{ friend.avatar_url }}" alt="">
+	</div>
+	<div class="name" routerLink="/user/{{ friend.id }}">{{ friend.name }}</div>
+</div>

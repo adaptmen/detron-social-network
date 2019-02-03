@@ -82,7 +82,8 @@ auth_route.post('/signup', function (req, res) {
     });
 });
 app.use('/auth', auth_route);
-app.get('/app', function (req, res) {
+var app_route = express.Router({ strict: true });
+app_route.get('/*', function (req, res) {
     var cookies = new Cookies(req, res);
     if (cookies.get('t')) {
         var status_1 = authRepository.checkToken(cookies.get('t'));
@@ -106,8 +107,21 @@ app.get('/app', function (req, res) {
         res.redirect('/auth');
     }
 });
+app.use('/app', app_route);
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, './public', 'Present.html'));
+});
 app.get('/*.js', function (req, res) {
     res.sendFile(path.join(__dirname, './public', req.params['0'] + ".js"));
+});
+app.get('/*.css', function (req, res) {
+    res.sendFile(path.join(__dirname, './public', req.params['0'] + ".css"));
+});
+app.get('/*.map', function (req, res) {
+    res.sendFile(path.join(__dirname, './public', req.params['0'] + ".map"));
+});
+app.get('/*.ico', function (req, res) {
+    res.sendFile(path.join(__dirname, './public', req.params['0'] + ".ico"));
 });
 app.get('/disk/:object_fid/:file_id', function (req, res) {
 });

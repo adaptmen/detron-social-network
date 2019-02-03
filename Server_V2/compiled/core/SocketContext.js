@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SecurityHelper_1 = require("../helpers/SecurityHelper");
 var AppTypes_1 = require("./AppTypes");
 var SocketTypes_1 = require("./SocketTypes");
+var cookie = require("cookie");
 var SocketContext = (function () {
     function SocketContext(io, dbContext, authRepository) {
         var _this = this;
@@ -29,10 +30,12 @@ var SocketContext = (function () {
             }
         };
         this.dbContext = dbContext;
+        this.authRepository = authRepository;
         this.io = io;
         console.log('socket io started');
         this.io.use(function (_socket, next) {
-            var authToken = _socket.handshake.query.t;
+            var cookies = cookie.parse(_socket.handshake.headers['cookie']);
+            var authToken = cookies['t'];
             var tokenStatus = _this.authRepository.checkToken(authToken);
             if (tokenStatus === AppTypes_1.default.SUCCESS) {
                 next();
@@ -42,34 +45,43 @@ var SocketContext = (function () {
             }
         });
         this.io.sockets.on('connection', function (socket) {
-            console.log("Connect", socket.id);
-            var token = socket.handshake.query.t;
+            var token = cookie.parse(socket.handshake.headers['cookie'])['t'];
             _this
                 .dbContext
-                .getUser(_this.authRepository.getByToken(token).login)
-                .then(function (user) {
-                socket.user = {
-                    id: user.id
-                };
-                console.log('Connected user: ', socket.user.id);
-                socket.emit(SocketTypes_1.default.USER_INIT, user);
+                .getUserInit(_this.authRepository.getByToken(token).login)
+                .then(function (data) {
+                console.log(data);
+                socket.user = data.user;
+                console.log('Connected user:', socket.user.id);
+                setTimeout(function () {
+                    socket.emit(SocketTypes_1.default.APP_INIT, data);
+                    console.log(socket.user.id, SocketTypes_1.default.APP_INIT);
+                }, 1000);
                 socket.on('disconnect', function () {
                     console.log('Disconnect user: ', socket.user.id);
                 });
             });
-            socket.on(SocketTypes_1.default.GET_UPLOAD_TOKEN, function (info) {
-                _this
-                    .dbContext
-                    .checkUploadAccess(socket.user.id, info.object_fid)
-                    .then(function (res) {
-                    if (res === AppTypes_1.default.SUCCESS) {
-                        socket.emit(SocketTypes_1.default.GET_UPLOAD_TOKEN, _this.dbContext
-                            .generateUploadToken(socket.user.id, info.object_fid));
-                    }
-                    else {
-                        socket.emit(SocketTypes_1.default.GET_UPLOAD_TOKEN, 'error');
-                    }
-                });
+            var sendAnswer = function (id, type, msg) {
+                socket.emit(type + "_" + id, msg);
+            };
+            socket.on(SocketTypes_1.default.SOCKET_REQUEST, function (body) {
+                var r_id = body['id'];
+                var r_type = body['type'];
+                var r_msg = body['msg'];
+                if (r_type == SocketTypes_1.default.GET_UPLOAD_TOKEN) {
+                    _this
+                        .dbContext
+                        .checkUploadAccess(socket.user.id, r_msg.object_fid)
+                        .then(function (res) {
+                        if (res === AppTypes_1.default.SUCCESS) {
+                            sendAnswer(r_id, SocketTypes_1.default.GET_UPLOAD_TOKEN, _this.dbContext
+                                .generateUploadToken(socket.user.id, r_msg.object_fid));
+                        }
+                        else {
+                            sendAnswer(r_id, SocketTypes_1.default.GET_UPLOAD_TOKEN, SocketTypes_1.default.DENIED);
+                        }
+                    });
+                }
             });
             socket.on(SocketTypes_1.default.GET_CHATS, function () {
                 _this

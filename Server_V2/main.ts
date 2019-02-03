@@ -101,7 +101,9 @@ auth_route.post('/signup', (req, res) => {
 
 app.use('/auth', auth_route);
 
-app.get('/app', (req, res) => {
+var app_route = express.Router({strict: true});
+
+app_route.get('/*', (req, res) => {
     let cookies = new Cookies(req, res);
     if (cookies.get('t')) {
         let status = authRepository.checkToken(cookies.get('t'));
@@ -124,7 +126,9 @@ app.get('/app', (req, res) => {
     else {
         res.redirect('/auth');
     }
-});
+})
+
+app.use('/app', app_route);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './public', 'Present.html'));
@@ -132,6 +136,18 @@ app.get('/', (req, res) => {
 
 app.get('/*.js', (req, res) => {
     res.sendFile(path.join(__dirname, './public', `${req.params['0']}.js`));
+});
+
+app.get('/*.css', (req, res) => {
+    res.sendFile(path.join(__dirname, './public', `${req.params['0']}.css`));
+});
+
+app.get('/*.map', (req, res) => {
+    res.sendFile(path.join(__dirname, './public', `${req.params['0']}.map`));
+});
+
+app.get('/*.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, './public', `${req.params['0']}.ico`));
 });
 
 app.get('/disk/:object_fid/:file_id', (req, res) => {

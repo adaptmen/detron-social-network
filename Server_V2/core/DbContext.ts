@@ -58,6 +58,21 @@ export default class DbContext {
 		return this.userProvider.getByLogin(login);
 	}
 
+	public getUserInit(login) {
+		return new Promise((resolve, reject) => {
+			this
+			.userProvider
+			.getUserInit(login)
+			.then((user: any) => {
+				this
+				.getChats(user.id)
+				.then((chats) => {
+					resolve({ user, chats })
+				})
+			})
+		})
+	}
+
 	public getChats(user_id) {
 		return new Promise((resolve, reject) => {
 			this

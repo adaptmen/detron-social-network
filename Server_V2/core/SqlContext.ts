@@ -32,8 +32,8 @@ export default class SqlContext {
 					connection.destroy();
 					if (err) return reject(err);
 					if (results.length == 0) return resolve(AppTypes.EMPTY);
-					if (results.length == 1) return resolve(results[0]);
-					return resolve(results);
+					if (results.length == 1) return resolve(JSON.parse(JSON.stringify(results[0])));
+					return resolve(JSON.parse(JSON.stringify(results)));
 				});
 				console.log(q.sql);
 			});

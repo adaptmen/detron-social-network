@@ -64,12 +64,14 @@ export class SocketProvider implements OnInit {
         this.sendRequest = (type, msg) => {
             let subj = new Subject();
             let id = this.securityHelper.generateRequestId();
+            if (!env.production) console.log('~~> ', type, msg);
             this.socket.emit(SocketTypes.SOCKET_REQUEST, {
                 id, type, msg
             });
             this.socket.on(`${type}_${id}`, (ans) => {
                 subj.next(ans);
                 this.socket.off(`${type}_${id}`);
+                if (!env.production) console.log('<~~ ', type, msg);
             });
             return subj;
         };

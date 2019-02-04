@@ -24,7 +24,7 @@ export class PageComponent implements OnInit {
 			this.page.id = this.route.snapshot.paramMap.get("id");
 			this
 			.socketProvider
-			.sendRequest(SocketTypes.GET_PAGE, this.page.id)
+			.sendRequest(SocketTypes.GET_PAGE, { id: this.page.id })
 			.subscribe((ans) => {
 				if (ans == SocketTypes.ERROR) { this.error = true }
 				else { this.page = ans; }

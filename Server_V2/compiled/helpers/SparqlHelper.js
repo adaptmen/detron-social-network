@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SparqlHelper = (function () {
     function SparqlHelper() {
         this.prefixes = 'PREFIX users: <http://localhost:3030/users#> \n' +
+            'PREFIX groups: <http://localhost:3030/groups#> \n' +
             'PREFIX chats: <http://localhost:3030/chats#> \n' +
             'PREFIX messages: <http://localhost:3030/messages#> \n' +
             'PREFIX walls: <http://localhost:3030/walls#> \n' +

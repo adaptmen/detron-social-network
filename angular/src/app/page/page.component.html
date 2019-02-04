@@ -1,7 +1,7 @@
 <div *ngIf="page" id="page">
 	<div id="info_block">
 		<div id="avatar">
-			<img src="{{ page.avatar_link }}" alt="">
+			<img src="{{ page.avatar_link || 'https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50' }}" alt="">
 		</div>
 		<div id="person_info">
 			<div id="name">{{ page.name }}</div>

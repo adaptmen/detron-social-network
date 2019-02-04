@@ -71,7 +71,7 @@ export class SocketProvider implements OnInit {
             this.socket.on(`${type}_${id}`, (ans) => {
                 subj.next(ans);
                 this.socket.off(`${type}_${id}`);
-                if (!env.production) console.log('<~~ ', type, msg);
+                if (!env.production) console.log('<~~ ', type, ans);
             });
             return subj;
         };

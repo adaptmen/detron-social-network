@@ -103,18 +103,25 @@ export default class DbContext {
 		});
 	}
 
+	public parseObjectFid(object_fid, regex) {
+		return String(object_fid).match(regex);
+	}
+
 	public checkUploadAccess(user_id, object_fid): Promise <AppTypes.SUCCESS | AppTypes.ERROR> {
-		let wall_parse = String(object_fid).match(/(wall)_([^.]+)/);
-		let chat_parse = String(object_fid).match(/(chat)_([^.]+)/);
-		let user_parse = String(object_fid).match(/(user)_([^.]+)/);
+		let wall_parse = this.parseObjectFid(object_fid, /(wall)_([^.]+)/);
+		let chat_parse = this.parseObjectFid(object_fid, /(chat)_([^.]+)/);
+		let user_parse = this.parseObjectFid(object_fid, /(user)_([^.]+)/);
 		return new Promise((resolve, reject) => {
 			if(!wall_parse && !chat_parse && !user_parse) return reject(AppTypes.ERROR);
+			console.log(user_id, object_fid);
 			if (wall_parse) {
+				console.log(wall_parse);
 				this
 				.wallProvider
 				.getOwnerInfo(wall_parse[2])
 				.then((res) => {
-					return res.id == user_id 
+					console.log(res);
+					return res[0].id == user_id 
 					? resolve(AppTypes.SUCCESS)
 					: resolve(AppTypes.ERROR)
 				});

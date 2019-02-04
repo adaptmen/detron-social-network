@@ -106,18 +106,16 @@ export default class WallDataProvider extends DataProvider {
 			SELECT ?id ?name
 			{
 				GRAPH <${this.sparqlHelper.graphs_uri.walls}> {
-					walls:wall_${wall_id} walls:owner ?owner .
+					walls:wall_${wall_id} walls:attacher ?owner .
 				}
 				OPTIONAL {
 					GRAPH <${this.sparqlHelper.graphs_uri.users}> {
-						?owner type:id ?id ;
-						users:name ?name
+						?owner type:id ?id
 					}
 				}
 				OPTIONAL {
 					GRAPH <${this.sparqlHelper.graphs_uri.groups}> {
-						?owner type:id ?id ;
-						groups:name ?name
+						?owner type:id ?id
 					}
 				}
 			}`;

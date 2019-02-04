@@ -71,7 +71,7 @@ var WallDataProvider = (function (_super) {
         });
     };
     WallDataProvider.prototype.getOwnerInfo = function (wall_id) {
-        var sparql = this.sparqlHelper.prefixes + "\n\t\t\tSELECT ?id ?name\n\t\t\t{\n\t\t\t\tGRAPH <" + this.sparqlHelper.graphs_uri.walls + "> {\n\t\t\t\t\twalls:wall_" + wall_id + " walls:owner ?owner .\n\t\t\t\t}\n\t\t\t\tOPTIONAL {\n\t\t\t\t\tGRAPH <" + this.sparqlHelper.graphs_uri.users + "> {\n\t\t\t\t\t\t?owner type:id ?id ;\n\t\t\t\t\t\tusers:name ?name\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tOPTIONAL {\n\t\t\t\t\tGRAPH <" + this.sparqlHelper.graphs_uri.groups + "> {\n\t\t\t\t\t\t?owner type:id ?id ;\n\t\t\t\t\t\tgroups:name ?name\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}";
+        var sparql = this.sparqlHelper.prefixes + "\n\t\t\tSELECT ?id ?name\n\t\t\t{\n\t\t\t\tGRAPH <" + this.sparqlHelper.graphs_uri.walls + "> {\n\t\t\t\t\twalls:wall_" + wall_id + " walls:attacher ?owner .\n\t\t\t\t}\n\t\t\t\tOPTIONAL {\n\t\t\t\t\tGRAPH <" + this.sparqlHelper.graphs_uri.users + "> {\n\t\t\t\t\t\t?owner type:id ?id\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tOPTIONAL {\n\t\t\t\t\tGRAPH <" + this.sparqlHelper.graphs_uri.groups + "> {\n\t\t\t\t\t\t?owner type:id ?id\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}";
         return this.query(sparql, 'query');
     };
     WallDataProvider.prototype.checkOwner = function (wall_id, user_id) {

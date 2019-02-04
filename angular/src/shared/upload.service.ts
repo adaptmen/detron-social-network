@@ -10,7 +10,7 @@ export class UploadService {
 
 	constructor(private httpService: HttpService, private socketProvider: SocketProvider) { }
 
-	public UPLOAD_URL = `${env.api.host}/disk/upload`;
+	public UPLOAD_URL = `/disk/upload`;
 
 	public getAccess(object_fid) {
 		let subj = new Subject();

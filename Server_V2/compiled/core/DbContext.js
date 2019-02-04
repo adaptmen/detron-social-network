@@ -87,20 +87,26 @@ var DbContext = (function () {
             });
         });
     };
+    DbContext.prototype.parseObjectFid = function (object_fid, regex) {
+        return String(object_fid).match(regex);
+    };
     DbContext.prototype.checkUploadAccess = function (user_id, object_fid) {
         var _this = this;
-        var wall_parse = String(object_fid).match(/(wall)_([^.]+)/);
-        var chat_parse = String(object_fid).match(/(chat)_([^.]+)/);
-        var user_parse = String(object_fid).match(/(user)_([^.]+)/);
+        var wall_parse = this.parseObjectFid(object_fid, /(wall)_([^.]+)/);
+        var chat_parse = this.parseObjectFid(object_fid, /(chat)_([^.]+)/);
+        var user_parse = this.parseObjectFid(object_fid, /(user)_([^.]+)/);
         return new Promise(function (resolve, reject) {
             if (!wall_parse && !chat_parse && !user_parse)
                 return reject(AppTypes_1.default.ERROR);
+            console.log(user_id, object_fid);
             if (wall_parse) {
+                console.log(wall_parse);
                 _this
                     .wallProvider
                     .getOwnerInfo(wall_parse[2])
                     .then(function (res) {
-                    return res.id == user_id
+                    console.log(res);
+                    return res[0].id == user_id
                         ? resolve(AppTypes_1.default.SUCCESS)
                         : resolve(AppTypes_1.default.ERROR);
                 });

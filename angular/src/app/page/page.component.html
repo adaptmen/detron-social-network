@@ -24,8 +24,8 @@
 			</div>
 		</div>
 	</div>
-	<div id="wall">
-		<div class="post" *ngIf="page.wall" *ngFor="let post of page.wall.posts">
+	<div id="wall" *ngIf="page.wall">
+		<div class="post" *ngFor="let post of page.wall.posts">
 			<div class="maker_info">
 				<div class="avatar">
 					<img src="{{ post.maker_avatar_url }}" alt="">

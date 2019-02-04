@@ -88,6 +88,27 @@ export default class SocketContext {
 						}
 					});
 				}
+				else if (r_type == SocketTypes.GET_PAGE) {
+					this
+					.dbContext
+					.getPage(r_msg.id)
+					.then((ans: any) => {
+						if (ans == AppTypes.NOT_EXIST) {
+							sendAnswer(
+								r_id,
+								SocketTypes.GET_PAGE,
+								AppTypes.NOT_EXIST
+							);
+						}
+						else if (ans.id) {
+							sendAnswer(
+								r_id,
+								SocketTypes.GET_PAGE,
+								ans
+							);
+						}
+					});
+				}
 
 			});
 

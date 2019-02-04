@@ -21,7 +21,7 @@ export class PageComponent implements OnInit {
 	ngOnInit() {
 		this.appService.onConnect.subscribe(() => {
 			this.page = {};
-			this.page.id = this.route.snapshot.paramMap.get("page_id");
+			this.page.id = this.route.snapshot.paramMap.get("id");
 			this
 			.socketProvider
 			.sendRequest(SocketTypes.GET_PAGE, this.page.id)

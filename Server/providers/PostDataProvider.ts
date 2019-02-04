@@ -16,7 +16,6 @@ export default class PostDataProvider extends DataProvider {
                     posts:wall walls:wall_${post.wall_id} ;
                     type:time "${post.time}" ;
 					type:role "post" ;
-                    type:mongo_id "${post.mongo_id}" ;
                     type:owner ${post.owner} .
                 }
             }`;

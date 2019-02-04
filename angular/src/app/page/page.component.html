@@ -1,13 +1,13 @@
 <div *ngIf="page" id="page">
 	<div id="info_block">
 		<div id="avatar">
-			<img src="page.user.avatar_link" alt="">
+			<img src="page.avatar_link" alt="">
 		</div>
 		<div id="person_info">
-			<div id="name">{{ page.user.name }}</div>
-			<div id="status">{{ page.user.status }}</div>
-			<div id="age">{{ page.user.age }}</div>
-			<div id="city">{{ page.user.city }}</div>
+			<div id="name">{{ page.name }}</div>
+			<div id="status">{{ page.status }}</div>
+			<div id="age">{{ page.age }}</div>
+			<div id="city">{{ page.city }}</div>
 		</div>
 		<div id="stat_info">
 			<div id="friends">
@@ -25,7 +25,7 @@
 		</div>
 	</div>
 	<div id="wall">
-		<div class="post" *ngFor="let post of page.wall.posts">
+		<div class="post" *ngIf="page.wall" *ngFor="let post of page.wall.posts">
 			<div class="maker_info">
 				<div class="avatar">
 					<img src="{{ post.maker_avatar_url }}" alt="">

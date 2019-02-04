@@ -16,7 +16,7 @@ var DbContext = (function () {
         this.messageProvider = new MessageDataProvider_1.default(this.sqlContext);
         this.historyProvider = new HistoryDataProvider_1.default(this.sqlContext);
         this.userProvider = new UserDataProvider_1.default(this.sqlContext);
-        this.wallProvider = new WallDataProvider_1.default();
+        this.wallProvider = new WallDataProvider_1.default(this.sqlContext);
         this.fileProvider = new FileDataProvider_1.default();
         this.groupProvider = new GroupDataProvider_1.default();
     }
@@ -206,17 +206,30 @@ var DbContext = (function () {
         });
     };
     DbContext.prototype.createUser = function (login, password) {
+        var _this = this;
         var new_u = {
             id: this.securityHelper.generateId(),
             login: login, password: password,
             token: this.securityHelper.generateToken(),
             f_token: this.securityHelper.generateToken()
         };
-        return this
-            .userProvider
-            .insertUser(new_u.id, new_u.login, new_u.password, new_u.token, new_u.f_token)
-            .then(function (res) {
-            return AppTypes_1.default.SUCCESS;
+        return new Promise(function (resolve, reject) {
+            return _this
+                .userProvider
+                .insertUser(new_u.id, new_u.login, new_u.password, new_u.token, new_u.f_token)
+                .then(function (res) {
+                var wall_id = _this.securityHelper.generateId();
+                _this
+                    .wallProvider
+                    .addWall(wall_id, "users:user_" + new_u.id)
+                    .then(function () {
+                    _this.sqlContext.db('app')
+                        .query("UPDATE ?? SET ?? = ? WHERE ?? = ?", ['users', 'wall_id', wall_id, 'id', new_u.id])
+                        .then(function () {
+                        resolve(AppTypes_1.default.SUCCESS);
+                    });
+                });
+            });
         });
     };
     DbContext.prototype.createChat = function (user_1_id, user_2_id) {
@@ -248,6 +261,33 @@ var DbContext = (function () {
                     .then(function () {
                     resolve();
                 });
+            });
+        });
+    };
+    DbContext.prototype.getPage = function (page_id) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this
+                .userProvider
+                .checkExistById(page_id)
+                .then(function (ans) {
+                if (ans == AppTypes_1.default.EMPTY)
+                    resolve(AppTypes_1.default.NOT_EXIST);
+                else {
+                    var page_1 = { wall: {} };
+                    _this
+                        .userProvider
+                        .getPageUserById(ans.id)
+                        .then(function (ans) {
+                        Object.assign(page_1, ans);
+                        _this
+                            .wallProvider
+                            .getPostsForWall(ans.wall_id, 0)
+                            .then(function (posts) {
+                            page_1.wall['posts'] = posts;
+                        });
+                    });
+                }
             });
         });
     };

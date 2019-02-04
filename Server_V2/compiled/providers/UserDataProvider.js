@@ -54,10 +54,16 @@ var UserDataProvider = (function (_super) {
             .db('app').query("SELECT ??, ??, ??, ??\n         FROM ?? WHERE login = ?", ['app', 'id', 'name', 'login', 'password', 'users', login]);
     };
     UserDataProvider.prototype.getUserInit = function (login) {
-        var fields = ['id', 'name', 'login', 'password', 'avatar_url', 'age', "city"];
+        var fields = ['id', 'name', 'login', 'password', 'avatar_url', 'age', "city", "wall_id"];
         return this
             .sqlContext
             .db('app').query("SELECT ??\n         FROM ?? WHERE login = ?", [fields, 'users', login]);
+    };
+    UserDataProvider.prototype.getPageUserById = function (id) {
+        var fields = ['id', 'name', 'login', 'avatar_url', 'age', "city"];
+        return this
+            .sqlContext
+            .db('app').query("SELECT ??\n         FROM ?? WHERE id = ?", [fields, 'users', id]);
     };
     UserDataProvider.prototype.checkAccess = function (login, password) {
         var columns = ['login', 'password'];
@@ -67,6 +73,10 @@ var UserDataProvider = (function (_super) {
     UserDataProvider.prototype.checkExist = function (login) {
         var sql = "SELECT ?? FROM ?? WHERE login = ?";
         return this.sqlContext.db('app').query(sql, ['login', 'users', login]);
+    };
+    UserDataProvider.prototype.checkExistById = function (id) {
+        var sql = "SELECT ?? FROM ?? WHERE id = ?";
+        return this.sqlContext.db('app').query(sql, ['id', 'users', id]);
     };
     UserDataProvider.prototype.checkSubscribe = function (user_id, object) {
         var sparql = this.sparqlHelper.prefixes + "\n            ASK WHERE\n            {\n                GRAPH <" + this.sparqlHelper.graphs_uri.users + ">\n                { \n                    users:user_" + user_id + " type:subscribe ?object\n                }\n            }";

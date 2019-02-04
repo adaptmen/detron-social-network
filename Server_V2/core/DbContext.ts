@@ -30,7 +30,7 @@ export default class DbContext {
 		this.messageProvider = new MessageDataProvider(this.sqlContext);
 		this.historyProvider = new HistoryDataProvider(this.sqlContext);
 		this.userProvider = new UserDataProvider(this.sqlContext);
-		this.wallProvider = new WallDataProvider();
+		this.wallProvider = new WallDataProvider(this.sqlContext);
 		this.fileProvider = new FileDataProvider();
 		this.groupProvider = new GroupDataProvider();
 	}
@@ -231,11 +231,24 @@ export default class DbContext {
 			token: this.securityHelper.generateToken(),
 			f_token: this.securityHelper.generateToken()
 		};
-		return this
-		.userProvider
-		.insertUser(new_u.id, new_u.login, new_u.password, new_u.token, new_u.f_token)
-		.then((res) => {
-			return AppTypes.SUCCESS;
+		return new Promise((resolve, reject) => {
+			return this
+			.userProvider
+			.insertUser(new_u.id, new_u.login, new_u.password, new_u.token, new_u.f_token)
+			.then((res) => {
+				let wall_id = this.securityHelper.generateId();
+				this
+				.wallProvider
+				.addWall(wall_id, `users:user_${new_u.id}`)
+				.then(() => {
+					this.sqlContext.db('app')
+					.query(`UPDATE ?? SET ?? = ? WHERE ?? = ?`,
+					 ['users', 'wall_id', wall_id, 'id', new_u.id])
+					.then(() => {
+						resolve(AppTypes.SUCCESS);
+					})
+				})
+			})
 		});
 	}
 
@@ -269,6 +282,32 @@ export default class DbContext {
 				})
 			})
 		})
+	}
+
+	public getPage(page_id) {
+		return new Promise((resolve, reject) => {
+			this
+			.userProvider
+			.checkExistById(page_id)
+			.then((ans: any) => {
+				if (ans == AppTypes.EMPTY) resolve(AppTypes.NOT_EXIST);
+				else {
+					let page = {wall: {}};
+					this
+					.userProvider
+					.getPageUserById(ans.id)
+					.then((ans: any) => {
+						Object.assign(page, ans);
+						this
+						.wallProvider
+						.getPostsForWall(ans.wall_id, 0)
+						.then((posts) => {
+							page.wall['posts'] = posts;
+						});
+					});
+				}
+			});
+		});
 	}
 
 	public getMessages(user_id, chat_id, offsetLevel) {

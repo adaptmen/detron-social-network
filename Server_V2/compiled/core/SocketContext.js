@@ -82,6 +82,19 @@ var SocketContext = (function () {
                         }
                     });
                 }
+                else if (r_type == SocketTypes_1.default.GET_PAGE) {
+                    _this
+                        .dbContext
+                        .getPage(r_msg.id)
+                        .then(function (ans) {
+                        if (ans == AppTypes_1.default.NOT_EXIST) {
+                            sendAnswer(r_id, SocketTypes_1.default.GET_PAGE, AppTypes_1.default.NOT_EXIST);
+                        }
+                        else if (ans.id) {
+                            sendAnswer(r_id, SocketTypes_1.default.GET_PAGE, ans);
+                        }
+                    });
+                }
             });
             socket.on(SocketTypes_1.default.GET_CHATS, function () {
                 _this

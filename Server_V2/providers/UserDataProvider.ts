@@ -72,12 +72,21 @@ export default class UserDataProvider extends DataProvider {
     }
 
     public getUserInit(login) {
-        let fields = ['id', 'name', 'login', 'password', 'avatar_url', 'age', "city"];
+        let fields = ['id', 'name', 'login', 'password', 'avatar_url', 'age', "city", "wall_id"];
         return this
         .sqlContext
         .db('app').query(`SELECT ??
          FROM ?? WHERE login = ?`,
           [fields, 'users', login]);
+    }
+
+    public getPageUserById(id) {
+        let fields = ['id', 'name', 'login', 'avatar_url', 'age', "city"];
+        return this
+        .sqlContext
+        .db('app').query(`SELECT ??
+         FROM ?? WHERE id = ?`,
+          [fields, 'users', id]);
     }
 
     public checkAccess(login, password) {
@@ -89,6 +98,11 @@ export default class UserDataProvider extends DataProvider {
     public checkExist(login) {
         let sql = `SELECT ?? FROM ?? WHERE login = ?`;
         return this.sqlContext.db('app').query(sql, ['login', 'users', login]);
+    }
+
+    public checkExistById(id) {
+        let sql = `SELECT ?? FROM ?? WHERE id = ?`;
+        return this.sqlContext.db('app').query(sql, ['id', 'users', id]);
     }
 
     public checkSubscribe(user_id, object) {

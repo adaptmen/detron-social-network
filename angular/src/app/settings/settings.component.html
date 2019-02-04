@@ -1,3 +1,26 @@
-<p>
-  settings works!
-</p>
+<div id="settings">
+	<h3>User data</h3>
+	<div id="user_id" class="disable">
+		<span>id: </span>{{ id }}
+	</div>
+	<div id="login" class="disable">
+		<span>nickname: </span>{{ login }}
+	</div>
+	<div id="name">
+		<span>name: </span>{{ name }} 
+	</div>
+	<div id="status">
+		<span>status: </span>{{ status }} 
+	</div>
+	<div id="age">
+		<span>age: </span>{{ age }} 
+	</div>
+	<div id="city">
+		<span>city: </span>{{ city }} 
+	</div>
+	<div id="avatar">
+		<span>avatar: </span>{{ avatar_url || 'http://gofiguremath.org/wp-content/uploads/2013/12/Sierpinski-Triangle-iteration-1.png' }}
+		<img src="{{ avatar_url || 'http://gofiguremath.org/wp-content/uploads/2013/12/Sierpinski-Triangle-iteration-1.png' }}" alt="">
+	</div>
+	<h3>Wall files</h3>
+</div>

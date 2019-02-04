@@ -72,12 +72,19 @@ export default class FileDataProvider extends DataProvider {
   public getFile(file_id) {
     let sparql =
       `${this.sparqlHelper.prefixes}
-        SELECT ?mongo_id ?privacy ?owner_id
-        FROM <${this.base_url}/${this.dataset}> 
-        { files:file_${file_id} files:owner ?owner .
-          ?owner type:id ?owner_id .
-          files:file_${file_id} files:privacy ?privacy ;
-          files:mongo_id ?mongo_id .
+        SELECT ?mongo_id ?attacher
+        FROM <${this.sparqlHelper.graphs_uri.files}>
+        { files:file_${file_id} files:mongo_id ?mongo_id .
+        }`;
+    return this.query(sparql, 'query');
+  }
+
+  public getByOwner(owner) {
+    let sparql =
+      `${this.sparqlHelper.prefixes}
+        SELECT ?file_id ?mongo_id
+        FROM <${this.sparqlHelper.graphs_uri.files}>
+        { ?file files:attacher ${owner}; type:id ?file_id; files:mongo_id ?mongo_id .
         }`;
     return this.query(sparql, 'query');
   }

@@ -19,6 +19,8 @@ export class AppService implements OnInit {
 		});
 	}
 
+	public view_upload = new Subject();
+
 	public inited = false;
 
 	public current_url: any;

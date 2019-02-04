@@ -148,12 +148,13 @@ export default class DbContext {
 		return tData;
 	}
 
-	public getFileSteam(file_id) {
+	public getFileStream(file_id) {
 		return this
-		.sqlContext
-		.query(`USE disk SELECT mongo_id FROM \`files\` WHERE id = '${file_id}'`)
+		.sqlContext.db('disk')
+		.query(`SELECT mongo_id FROM ?? WHERE id = ?'`, 
+			['files', file_id])
 		.then((res: any) => {
-			return res.mongo_id
+			return this.mongoContext.readStream(res.mongo_id)
 		});
 	}
 
@@ -206,21 +207,44 @@ export default class DbContext {
 
 	public uploadFile(file_id, file_name, attacher, ext, file) {
 		return new Promise((resolve, reject) => {
-
 			let m_stream = this.mongoContext.writeStream(file_id, {});
             file.pipe(m_stream);
             m_stream.on('finish', function () {
                 this.fileProvider.addFile(file_id, attacher)
                     .then((info) => {
-                    	this.sqlContext
-                    	.query(`USE disk INSERT INTO \`files\`
+                    	this.sqlContext.db('disk')
+                    	.query(`INSERT INTO ??
                     	 (id, name, privacy, type, mongo_id)
-                    	 VALUES ('${file_id}', '${file_name}', 'private', '${ext}', '${m_stream.id}')`)
+                    	 VALUES (?, ?, ?, ?, ?)`,
+                    	 ['files', file_id, file_name, 'public', ext, m_stream.id])
                     	.then(() => {
                         	resolve(`/disk/${attacher}/${file_id}`);
                     	});
                     });
             });
+		});
+	}
+
+	public getFileList(attacher) {
+		return new Promise((resolve, reject) => {
+			this
+			.fileProvider
+			.getByOwner(attacher)
+			.then((res) => {
+				if (res.length == 0) return resolve([]);
+				let files_ids = [];
+				res.forEach((g_file: any) => {
+					files_ids.push(g_file['file_id']);
+				});
+				this
+				.sqlContext
+				.db('disk')
+				.query(`SELECT ??, ??, ?? FROM ?? WHERE id IN (?)`, 
+					['id', 'name', 'type', 'files', files_ids])
+				.then((s_files) => {
+					resolve(s_files);
+				});
+			});
 		});
 	}
 
@@ -303,7 +327,12 @@ export default class DbContext {
 						.getPostsForWall(ans.wall_id, 0)
 						.then((posts) => {
 							page.wall['posts'] = posts;
-							resolve(page);
+							this
+							.getFileList(`walls:wall_${page.wall['id']}`)
+							.then((file_list) => {
+								page.wall['files'] = file_list;
+								resolve(page);
+							});
 						});
 					});
 				}

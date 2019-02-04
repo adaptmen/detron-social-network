@@ -8,12 +8,27 @@
 			routerLink="/settings">
 				Редактировать
 			</button>
+			<button id="upload_btn" *ngIf="page.id == appService.user.id"
+			(click)="viewUpload('walls:wall_' + page.wall.id)">
+				Upload
+			</button>
 			<button id="friend_btn" *ngIf="page.id != appService.user.id">
 				Добавить в друзья
 			</button>
 			<button id="subscribe_btn" *ngIf="page.id != appService.user.id">
 				Подписаться
 			</button>
+		</div>
+		<div id="wall_info" *ngIf="page.wall">
+			<span>Файлы стены</span><span>{{ page.wall.files.length }}</span>
+			<div id="file_list">
+				<div class="file_item" *ngFor="let file of page.wall.files">
+					<div class="icon">
+						<img src="{{ getFilePreview(file) }}" alt="">
+					</div>
+					<div class="file_name">{{ file.name }}</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<div id="right">
@@ -39,7 +54,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="wall" *ngIf="page.wall">
+	<div id="posts" *ngIf="page.wall">
 		<div class="post" *ngFor="let post of page.wall.posts">
 			<div class="maker_info">
 				<div class="avatar">

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { HttpService } from '@shared/http.service';
 import { UploadService } from '@shared/upload.service';
 import SocketTypes from '@app/SocketTypes';
@@ -13,12 +13,17 @@ export class UploadComponent implements OnInit {
 
 	constructor(public httpService: HttpService, public uploadService: UploadService) { }
 
-	public preview = {};
+	@Input() object_fid = "";
+    @Output() close = new EventEmitter<any>();
 
-	public object_fid = '';
+	public preview = {};
 
 	ngOnInit() {
 	}
+
+	cancel() {
+        this.close.emit(null);
+    }
 
 	onChange(event) {
 
@@ -31,10 +36,10 @@ export class UploadComponent implements OnInit {
 		    .uploadFile(file, this.object_fid)
 		    .subscribe((ans) => {
 		    	if (ans === SocketTypes.DENIED) {
-
+		    		console.log('denied');
 		    	}
 		    	else {
-
+		    		console.log(ans);
 		    	}
 		    });
     	}

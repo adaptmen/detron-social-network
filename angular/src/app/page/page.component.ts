@@ -18,6 +18,16 @@ export class PageComponent implements OnInit {
 	public page: any;
 	public error = false;
 
+	public getFilePreview(file: any) {
+		if (file.type == 'jpg' || file.type == 'jpeg' || file.type == 'png') {
+			return `/disk/wall_${this.page.wall.id}/${file.id}`;
+		}
+	}
+
+	public viewUpload(object_fid) {
+		this.appService.view_upload.next(object_fid);
+	}
+
 	ngOnInit() {
 		if (this.appService.inited) {
 			this.page = {};

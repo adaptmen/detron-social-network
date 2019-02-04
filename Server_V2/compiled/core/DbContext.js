@@ -310,6 +310,7 @@ var DbContext = (function () {
                             .then(function (posts) {
                             page_1.wall['posts'] = posts;
                             page_1.wall['id'] = ans.wall_id;
+                            console.log("Wall id:", page_1.wall['id']);
                             _this
                                 .getFileList("walls:wall_" + page_1.wall['id'])
                                 .then(function (file_list) {

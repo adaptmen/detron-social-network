@@ -81,7 +81,7 @@ export default class UserDataProvider extends DataProvider {
     }
 
     public getPageUserById(id) {
-        let fields = ['id', 'name', 'login', 'avatar_url', 'age', "city"];
+        let fields = ['id', 'name', 'login', 'avatar_url', 'age', "city", "wall_id"];
         return this
         .sqlContext
         .db('app').query(`SELECT ??

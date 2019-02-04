@@ -60,7 +60,7 @@ var UserDataProvider = (function (_super) {
             .db('app').query("SELECT ??\n         FROM ?? WHERE login = ?", [fields, 'users', login]);
     };
     UserDataProvider.prototype.getPageUserById = function (id) {
-        var fields = ['id', 'name', 'login', 'avatar_url', 'age', "city"];
+        var fields = ['id', 'name', 'login', 'avatar_url', 'age', "city", "wall_id"];
         return this
             .sqlContext
             .db('app').query("SELECT ??\n         FROM ?? WHERE id = ?", [fields, 'users', id]);

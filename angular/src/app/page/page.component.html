@@ -9,7 +9,7 @@
 				Редактировать
 			</button>
 			<button id="upload_btn" *ngIf="page.id == appService.user.id"
-			(click)="viewUpload('walls:wall_' + page.wall.id)">
+			(click)="viewUpload('wall_' + page.wall.id)">
 				Upload
 			</button>
 			<button id="friend_btn" *ngIf="page.id != appService.user.id">

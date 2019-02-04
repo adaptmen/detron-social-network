@@ -313,13 +313,13 @@ export default class DbContext {
 			this
 			.userProvider
 			.checkExistById(page_id)
-			.then((ans: any) => {
-				if (ans == AppTypes.EMPTY) resolve(AppTypes.NOT_EXIST);
+			.then((answer: any) => {
+				if (answer == AppTypes.EMPTY) resolve(AppTypes.NOT_EXIST);
 				else {
 					let page = {wall: {}};
 					this
 					.userProvider
-					.getPageUserById(ans.id)
+					.getPageUserById(answer.id)
 					.then((ans: any) => {
 						Object.assign(page, ans);
 						this
@@ -327,6 +327,8 @@ export default class DbContext {
 						.getPostsForWall(ans.wall_id, 0)
 						.then((posts) => {
 							page.wall['posts'] = posts;
+							page.wall['id'] = ans.wall_id;
+							console.log("Wall id:", page.wall['id']);
 							this
 							.getFileList(`walls:wall_${page.wall['id']}`)
 							.then((file_list) => {

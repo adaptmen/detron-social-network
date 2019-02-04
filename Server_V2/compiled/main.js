@@ -135,7 +135,7 @@ app.get('/disk/:object_fid/:file_id', function (req, res) {
 });
 app.get('/disk/wall_*/:file_id', function (req, res) {
     dbContext
-        .getFileSteam(req.params['file_id'])
+        .getFileStream(req.params['file_id'])
         .then(function (stream) {
         stream.pipe(res);
     });

@@ -133,12 +133,13 @@ var DbContext = (function () {
             return AppTypes_1.default.DENIED;
         return tData;
     };
-    DbContext.prototype.getFileSteam = function (file_id) {
+    DbContext.prototype.getFileStream = function (file_id) {
+        var _this = this;
         return this
-            .sqlContext
-            .query("USE disk SELECT mongo_id FROM `files` WHERE id = '" + file_id + "'")
+            .sqlContext.db('disk')
+            .query("SELECT mongo_id FROM ?? WHERE id = ?'", ['files', file_id])
             .then(function (res) {
-            return res.mongo_id;
+            return _this.mongoContext.readStream(res.mongo_id);
         });
     };
     DbContext.prototype.accessFileExt = function (ext) {
@@ -196,11 +197,34 @@ var DbContext = (function () {
                 var _this = this;
                 this.fileProvider.addFile(file_id, attacher)
                     .then(function (info) {
-                    _this.sqlContext
-                        .query("USE disk INSERT INTO `files`\n                    \t (id, name, privacy, type, mongo_id)\n                    \t VALUES ('" + file_id + "', '" + file_name + "', 'private', '" + ext + "', '" + m_stream.id + "')")
+                    _this.sqlContext.db('disk')
+                        .query("INSERT INTO ??\n                    \t (id, name, privacy, type, mongo_id)\n                    \t VALUES (?, ?, ?, ?, ?)", ['files', file_id, file_name, 'public', ext, m_stream.id])
                         .then(function () {
                         resolve("/disk/" + attacher + "/" + file_id);
                     });
+                });
+            });
+        });
+    };
+    DbContext.prototype.getFileList = function (attacher) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this
+                .fileProvider
+                .getByOwner(attacher)
+                .then(function (res) {
+                if (res.length == 0)
+                    return resolve([]);
+                var files_ids = [];
+                res.forEach(function (g_file) {
+                    files_ids.push(g_file['file_id']);
+                });
+                _this
+                    .sqlContext
+                    .db('disk')
+                    .query("SELECT ??, ??, ?? FROM ?? WHERE id IN (?)", ['id', 'name', 'type', 'files', files_ids])
+                    .then(function (s_files) {
+                    resolve(s_files);
                 });
             });
         });
@@ -270,14 +294,14 @@ var DbContext = (function () {
             _this
                 .userProvider
                 .checkExistById(page_id)
-                .then(function (ans) {
-                if (ans == AppTypes_1.default.EMPTY)
+                .then(function (answer) {
+                if (answer == AppTypes_1.default.EMPTY)
                     resolve(AppTypes_1.default.NOT_EXIST);
                 else {
                     var page_1 = { wall: {} };
                     _this
                         .userProvider
-                        .getPageUserById(ans.id)
+                        .getPageUserById(answer.id)
                         .then(function (ans) {
                         Object.assign(page_1, ans);
                         _this
@@ -285,7 +309,13 @@ var DbContext = (function () {
                             .getPostsForWall(ans.wall_id, 0)
                             .then(function (posts) {
                             page_1.wall['posts'] = posts;
-                            resolve(page_1);
+                            page_1.wall['id'] = ans.wall_id;
+                            _this
+                                .getFileList("walls:wall_" + page_1.wall['id'])
+                                .then(function (file_list) {
+                                page_1.wall['files'] = file_list;
+                                resolve(page_1);
+                            });
                         });
                     });
                 }

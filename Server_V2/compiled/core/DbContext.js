@@ -285,6 +285,7 @@ var DbContext = (function () {
                             .getPostsForWall(ans.wall_id, 0)
                             .then(function (posts) {
                             page_1.wall['posts'] = posts;
+                            resolve(page_1);
                         });
                     });
                 }

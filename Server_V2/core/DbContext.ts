@@ -303,6 +303,7 @@ export default class DbContext {
 						.getPostsForWall(ans.wall_id, 0)
 						.then((posts) => {
 							page.wall['posts'] = posts;
+							resolve(page);
 						});
 					});
 				}

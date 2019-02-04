@@ -10,6 +10,7 @@ export class AppService implements OnInit {
 	constructor(private socketProvider: SocketProvider) {
 		this.socketProvider.onConnect.subscribe(() => {
 			this.onConnect.next();
+			this.inited = true;
 			this.socketProvider.on(SocketTypes.APP_INIT).subscribe((app_data) => {
 				this.user = app_data['user'];
 				this.chats = app_data['chats'];
@@ -17,6 +18,8 @@ export class AppService implements OnInit {
 			});
 		});
 	}
+
+	public inited = false;
 
 	public current_url: any;
 	public friends: any;

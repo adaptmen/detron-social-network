@@ -19,7 +19,7 @@ export class PageComponent implements OnInit {
 	public error = false;
 
 	ngOnInit() {
-		this.appService.onConnect.subscribe(() => {
+		if (this.appService.inited) {
 			this.page = {};
 			this.page.id = this.route.snapshot.paramMap.get("id");
 			this
@@ -29,7 +29,20 @@ export class PageComponent implements OnInit {
 				if (ans == SocketTypes.ERROR) { this.error = true }
 				else { this.page = ans; }
 			});
-		});
+		}
+		else {
+			this.appService.onConnect.subscribe(() => {
+				this.page = {};
+				this.page.id = this.route.snapshot.paramMap.get("id");
+				this
+				.socketProvider
+				.sendRequest(SocketTypes.GET_PAGE, { id: this.page.id })
+				.subscribe((ans) => {
+					if (ans == SocketTypes.ERROR) { this.error = true }
+					else { this.page = ans; }
+				});
+			});
+		}
 	}
 
 }

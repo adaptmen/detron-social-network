@@ -20,9 +20,9 @@
 		<div id="person_info">
 			<div id="name">{{ page.name }}</div>
 			<div id="nick">@{{ page.login }}</div>
-			<div id="status">{{ page.status }}</div>
-			<div id="age"><span>Возраст: </span>{{ page.age }}</div>
-			<div id="city"><span>Город: </span>{{ page.city }}</div>
+			<div id="status" *ngIf="page.status">{{ page.status }}</div>
+			<div id="age" *ngIf="page.age"><span>Возраст: </span>{{ page.age }}</div>
+			<div id="city" *ngIf="page.city"><span>Город: </span>{{ page.city }}</div>
 		</div>
 		<div id="stat_info">
 			<div id="friends">

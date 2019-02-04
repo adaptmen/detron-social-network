@@ -1,13 +1,16 @@
+$menu_width = 130px
+$history_width = 44px
+
 #menu
 	position: fixed
 	float: left
-	width: 100px
+	width: $menu_width
 
 #history
 	position: fixed
 	float: right
-	width: 44px
+	width: $history_width
 
 #app
-	width: calc(100% - 44px - 100px)
-	margin-left: 100px
+	width: calc(100% - $history_width - $menu_width)
+	margin-left: $menu_width

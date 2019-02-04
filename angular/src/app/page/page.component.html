@@ -6,9 +6,9 @@
 		<div id="person_info">
 			<div id="name">{{ page.name }}</div>
 			<div id="nick">@{{ page.login }}</div>
-			<div id="status">{{ page.status }}</div>
-			<div id="age">{{ page.age }}</div>
-			<div id="city">{{ page.city }}</div>
+			<div id="status"><span>Статус: </span>{{ page.status }}</div>
+			<div id="age"><span>Возраст: </span>{{ page.age }}</div>
+			<div id="city"><span>Город: </span>{{ page.city }}</div>
 		</div>
 		<div id="buttons">
 			<button id="edit_btn" *ngIf="page.id == appService.user.id"

@@ -19,6 +19,7 @@ export class PageComponent implements OnInit {
 	public error = false;
 
 	ngOnInit() {
+		this.page = {};
 		this.page.id = this.route.snapshot.paramMap.get("page_id");
 		this
 		.socketProvider

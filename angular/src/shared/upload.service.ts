@@ -28,6 +28,18 @@ export class UploadService {
 		return subj;
 	}
 
+	public attach(a_token) {
+		let subj = new Subject();
+		this
+		.httpService
+		.post(`/disk/attach-file/${a_token}`, '')
+		.subscribe((ans: any) => {
+			if (ans.ok) subj.next(SocketTypes.SUCCESS);
+			else subj.next(SocketTypes.ERROR);
+		});
+		return subj;
+	}
+
 	public uploadFile(file, object_fid) {
 		let formData: FormData = new FormData();
 		formData.append('uploadFile', file, file.name);

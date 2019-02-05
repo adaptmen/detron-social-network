@@ -21,6 +21,7 @@ var FileDataProvider = (function (_super) {
         var _this = _super.call(this) || this;
         _this.TOKEN_LIVE_TIME = 60 * 1000;
         _this.token_store = {};
+        _this.attach_token_store = {};
         return _this;
     }
     FileDataProvider.prototype.generateToken = function (user_id, object_fid) {
@@ -42,16 +43,35 @@ var FileDataProvider = (function (_super) {
         else
             return this.token_store[token];
     };
-    FileDataProvider.prototype.addFile = function (file_id, attacher) {
-        var sparql = this.sparqlHelper.prefixes + "\n        INSERT DATA { \n          GRAPH <" + this.sparqlHelper.graphs_uri.files + ">\n            { files:file_" + file_id + " type:id \"" + file_id + "\";\n              files:attacher " + attacher + " ;\n              files:privacy \"public\" } }";
+    FileDataProvider.prototype.generateAttachToken = function (object_fid, file_id) {
+        var token = this.securityHelper.generateToken();
+        this.attach_token_store[token] = {
+            file_id: file_id,
+            object_fid: object_fid,
+            expire: Date.now() + 1000 * 60 * 5
+        };
+        return token;
+    };
+    FileDataProvider.prototype.getAttachTokenData = function (token) {
+        if (!this.attach_token_store[token])
+            return AppTypes_1.default.NOT_EXIST;
+        if (this.attach_token_store[token].expire < Date.now()) {
+            delete this.attach_token_store[token];
+            return AppTypes_1.default.TIME_BANNED;
+        }
+        else
+            return this.attach_token_store[token];
+    };
+    FileDataProvider.prototype.attachFile = function (file_id, attacher) {
+        var sparql = this.sparqlHelper.prefixes + "\n\t\t\t\tINSERT DATA { \n\t\t\t\t\tGRAPH <" + this.sparqlHelper.graphs_uri.files + ">\n\t\t\t\t\t\t{ files:file_" + file_id + " type:id \"" + file_id + "\";\n\t\t\t\t\t\t\tfiles:attacher " + attacher + " ;\n\t\t\t\t\t\t\tfiles:privacy \"public\" } }";
         return this.query(sparql, 'update');
     };
     FileDataProvider.prototype.getFile = function (file_id) {
-        var sparql = this.sparqlHelper.prefixes + "\n        SELECT ?mongo_id ?attacher\n        FROM <" + this.sparqlHelper.graphs_uri.files + ">\n        { files:file_" + file_id + " files:mongo_id ?mongo_id .\n        }";
+        var sparql = this.sparqlHelper.prefixes + "\n\t\t\t\tSELECT ?mongo_id ?attacher\n\t\t\t\tFROM <" + this.sparqlHelper.graphs_uri.files + ">\n\t\t\t\t{ files:file_" + file_id + " files:mongo_id ?mongo_id .\n\t\t\t\t}";
         return this.query(sparql, 'query');
     };
     FileDataProvider.prototype.getByOwner = function (owner) {
-        var sparql = this.sparqlHelper.prefixes + "\n        SELECT ?file_id\n        FROM <" + this.sparqlHelper.graphs_uri.files + ">\n        { ?file files:attacher " + owner + "; type:id ?file_id .\n        }";
+        var sparql = this.sparqlHelper.prefixes + "\n\t\t\t\tSELECT ?file_id\n\t\t\t\tFROM <" + this.sparqlHelper.graphs_uri.files + ">\n\t\t\t\t{ ?file files:attacher " + owner + "; type:id ?file_id .\n\t\t\t\t}";
         return this.query(sparql, 'query');
     };
     return FileDataProvider;

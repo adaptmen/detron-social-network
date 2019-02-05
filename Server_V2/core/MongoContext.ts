@@ -31,6 +31,15 @@ export default class MongoContext {
         return this.bucket.openDownloadStream(MongoId(m_fileId));
     }
 
+    public deleteFile(m_file_id): any {
+        return new Promise((resolve, reject) => {
+            this.bucket.delete(MongoId(m_file_id), (err) => {
+                if (err) return reject(err);
+                resolve();
+            })
+        });
+    }
+
     public find(collection, searchOptions) {
         if (this.db) {
             return new Promise((resolve, reject) => {

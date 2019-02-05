@@ -147,7 +147,20 @@ var DbContext = (function () {
         });
     };
     DbContext.prototype.accessFileExt = function (ext) {
-        var ACCESS_LIST = ['.png', '.jpeg', '.jpg', '.pdf'];
+        var ACCESS_LIST = [
+            'png', 'jpeg', 'jpg',
+            'pdf', 'gif', 'mp3',
+            '3gp', 'avi', 'mkv',
+            'doc', 'docx', 'rar',
+            'zip', 'odf', 'ods',
+            'odp', 'blend', 'mp4',
+            'tar', 'gzip', 'webp',
+            'psd', 'gz', '7z',
+            'ogg', 'exe', 'ico',
+            'rpm', 'deb', 'cab',
+            'pptx', 'ics', 'xml',
+            'eot', 'ttf', 'otf'
+        ];
         return ACCESS_LIST.includes(ext);
     };
     DbContext.prototype.checkFileAccess = function (user_id, object) {
@@ -193,6 +206,26 @@ var DbContext = (function () {
         });
     };
     DbContext.prototype.deleteFile = function (file_id) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this
+                .sqlContext
+                .db('disk')
+                .query("SELECT ??, ?? FROM ?? WHERE id = ?", ['id', 'mongo_id', 'files', file_id])
+                .then(function (res) {
+                _this.mongoContext
+                    .deleteFile(res['mongo_id'])
+                    .then(function () {
+                    _this
+                        .sqlContext
+                        .db('disk')
+                        .query("DELETE FROM ?? WHERE id = ?", ['files', file_id])
+                        .then(function () {
+                        resolve();
+                    });
+                });
+            });
+        });
     };
     DbContext.prototype.uploadFile = function (file_id, file_name, attacher, ext, file) {
         var _this = this;
@@ -206,18 +239,40 @@ var DbContext = (function () {
                 var user_parse = String(attacher).match(/(user)_([^.]+)/);
                 if (wall_parse)
                     f_attacher = "walls:" + attacher;
-                if (chat_parse)
+                else if (chat_parse)
                     f_attacher = "chats:" + attacher;
-                if (user_parse)
+                else if (user_parse)
                     f_attacher = "users:" + attacher;
-                _this.fileProvider.addFile(file_id, f_attacher)
-                    .then(function (info) {
-                    _this.sqlContext.db('disk')
-                        .query("INSERT INTO ??\n                    \t (id, name, privacy, ext, mongo_id)\n                    \t VALUES (?, ?, ?, ?, ?)", ['files', file_id, file_name, 'public', ext, m_stream.id.toString()])
-                        .then(function () {
-                        resolve("/disk/" + attacher + "/" + file_id);
+                else {
+                    reject();
+                }
+                var a_token = _this.fileProvider.generateAttachToken(f_attacher, file_id);
+                setTimeout(function () {
+                    _this.deleteFile(file_id);
+                }, 1000 * 60 * 5);
+                _this.sqlContext.db('disk')
+                    .query("INSERT INTO ??\n            \t (id, name, privacy, ext, mongo_id)\n            \t VALUES (?, ?, ?, ?, ?)", ['files', file_id, file_name, 'public', ext, m_stream.id.toString()])
+                    .then(function () {
+                    resolve({
+                        ext: ext,
+                        name: file_name,
+                        file_url: "/disk/" + attacher + "/" + file_id,
+                        attach_token: a_token
                     });
                 });
+            });
+        });
+    };
+    DbContext.prototype.attachFile = function (a_token) {
+        var _this = this;
+        var tData = this.fileProvider.getAttachTokenData(a_token);
+        return new Promise(function (resolve, reject) {
+            if (tData == AppTypes_1.default.TIME_BANNED
+                || tData == AppTypes_1.default.NOT_EXIST)
+                return reject(AppTypes_1.default.ERROR);
+            _this.fileProvider.attachFile(tData.file_id, tData.object_fid)
+                .then(function (info) {
+                resolve(AppTypes_1.default.SUCCESS);
             });
         });
     };

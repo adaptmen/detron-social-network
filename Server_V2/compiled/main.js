@@ -7,6 +7,7 @@ var express = require("express");
 var busboy = require("connect-busboy");
 var Cookies = require("cookies");
 var socketIo = require("socket.io");
+var FileType = require('stream-file-type');
 var path = require("path");
 var config = require('./config.json');
 var SocketContext_1 = require("./core/SocketContext");
@@ -20,7 +21,6 @@ var SmsProvider_1 = require("./providers/SmsProvider");
 var smsProvider = new SmsProvider_1.default();
 var sqlContext = new SqlContext_1.default();
 var readChunk = require('read-chunk');
-var fileType = require('file-type');
 var securityHelper = new SecurityHelper_1.default();
 var store = new Store({ path: 'phones.json' });
 var PNF = GooglePhoneLib.PhoneNumberFormat;
@@ -149,6 +149,19 @@ app.get('/disk/wall_*/:file_id', function (req, res) {
         stream.pipe(res);
     });
 });
+app.post('/disk/attach-file/:a_token', function (req, res) {
+    var a_token = req.params.a_token;
+    dbContext
+        .attachFile(a_token)
+        .then(function () {
+        res.status = 200;
+        res.send({ ans: 'ok' });
+    })
+        .catch(function () {
+        res.status = 403;
+        res.end("Error");
+    });
+});
 app.post('/disk/upload/:access_token', function (req, res) {
     var access_token = req.params.access_token;
     var tokenData = dbContext.getUploadTokenData(access_token);
@@ -163,28 +176,38 @@ app.post('/disk/upload/:access_token', function (req, res) {
     else {
         req.pipe(req.busboy);
         req.busboy.on('file', function (fieldname, file, file_name, encoding, mimetype) {
-            var ext = 'jpg';
-            file.on('data', function (chunk) {
-            });
-            var ext_true = true;
-            var file_id = "" + securityHelper.generateFileId();
-            if (ext_true) {
-                dbContext
-                    .uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
-                    .then(function (result) {
-                    console.log(result);
-                    res.status = 200;
-                    res.send({ file_url: result });
-                })
-                    .catch(function (err) {
+            var detector = new FileType();
+            detector.fileTypePromise().then(function (fileType) {
+                if (fileType !== null) {
+                    var ext = fileType['ext'];
+                    var ext_true = dbContext.accessFileExt(ext);
+                    var file_id = "" + securityHelper.generateFileId();
+                    if (ext_true) {
+                        dbContext
+                            .uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
+                            .then(function (result) {
+                            console.log(result);
+                            res.status = 200;
+                            res.send(result);
+                        })
+                            .catch(function (err) {
+                            res.status = 403;
+                            res.end('Error');
+                        });
+                    }
+                    else {
+                        file.resume();
+                        res.status = 403;
+                        res.end('Error');
+                    }
+                }
+                else {
+                    file.resume();
                     res.status = 403;
                     res.end('Error');
-                });
-            }
-            else {
-                res.status = 403;
-                res.end = 'Ext failed';
-            }
+                }
+            });
+            file.pipe(detector).resume();
         });
     }
 });

@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { HttpService } from '@shared/http.service';
 import { UploadService } from '@shared/upload.service';
+import { Subject } from 'rxjs';
 import SocketTypes from '@app/SocketTypes';
 
 
@@ -17,12 +18,30 @@ export class UploadComponent implements OnInit {
     @Output() close = new EventEmitter<any>();
 
 	public preview = {};
+	public attach_token = '';
+	public status_string = '';
 
 	ngOnInit() {
 	}
 
 	cancel() {
         this.close.emit(null);
+    }
+
+    attach() {
+    	let subj = new Subject();
+    	this
+    	.uploadService
+    	.attach(this.attach_token)
+    	.subscribe((ans) => {
+    		if (ans == SocketTypes.SUCCESS) {
+    			this.cancel();
+    		}
+    		else {
+    			this.status_string = 'Произощла ошибка. Попробуйте заново';
+    		}
+    	});
+    	return subj;
     }
 
 	onChange(event) {
@@ -36,14 +55,17 @@ export class UploadComponent implements OnInit {
 		    .uploadFile(file, this.object_fid)
 		    .subscribe((ans: any) => {
 		    	if (ans === SocketTypes.DENIED) {
-		    		console.log('denied');
+		    		this.status_string = 'Доступ запрещён. Вы не можете загружать файлы на эту стену';
 		    	}
 		    	if (ans === SocketTypes.ERROR) {
-		    		console.log('error');
+		    		this.status_string = 'Произошла ошибка, попробуйте позже';
 		    	}
 		    	else {
-		    		if (ans.file_url) {
+		    		if (ans.ext) {
 		    			this.preview['file_url'] = ans.file_url;
+		    			this.preview['file_name'] = ans.name;
+		    			this.preview['file_ext'] = ans.ext;
+		    			this.attach_token = ans.attach_token;
 		    		}
 		    	}
 		    });

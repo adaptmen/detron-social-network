@@ -24,6 +24,16 @@ var MongoContext = (function () {
     MongoContext.prototype.readStream = function (m_fileId) {
         return this.bucket.openDownloadStream(MongoId(m_fileId));
     };
+    MongoContext.prototype.deleteFile = function (m_file_id) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.bucket.delete(MongoId(m_file_id), function (err) {
+                if (err)
+                    return reject(err);
+                resolve();
+            });
+        });
+    };
     MongoContext.prototype.find = function (collection, searchOptions) {
         var _this = this;
         if (this.db) {

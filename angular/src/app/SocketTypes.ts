@@ -8,6 +8,7 @@ enum SocketTypes {
 	WATCH_NOTIFY = 'watch_notify',
 	GET_UPLOAD_TOKEN = 'get_upload_token',
 	ERROR = 'error',
+	SUCCESS = 'success',
 	DENIED = 'denied',
 	GET_PAGE = 'get_page',
 	SOCKET_REQUEST = 'socket_request',

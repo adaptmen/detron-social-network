@@ -164,7 +164,19 @@ export default class DbContext {
 	}
 
 	public accessFileExt(ext) {
-		let ACCESS_LIST = ['.png', '.jpeg', '.jpg', '.pdf'];
+		let ACCESS_LIST = [
+			'png', 'jpeg', 'jpg',
+			'pdf', 'gif', 'mp3',
+			'3gp', 'avi', 'mkv',
+			'doc', 'docx', 'rar',
+			'zip', 'odf', 'ods',
+			'odp', 'blend', 'mp4',
+			'tar', 'gzip', 'webp',
+			'psd', 'gz', '7z',
+			'ogg', 'exe', 'ico',
+			'rpm', 'deb', 'cab',
+			'pptx', 'ics', 'xml',
+			'eot', 'ttf', 'otf'];
 		return ACCESS_LIST.includes(ext);
 	}
 
@@ -211,7 +223,27 @@ export default class DbContext {
 	}
 
 	public deleteFile(file_id) {
-		
+		return new Promise((resolve, reject) => {
+			this
+			.sqlContext
+			.db('disk')
+			.query(`SELECT ??, ?? FROM ?? WHERE id = ?`,
+				['id', 'mongo_id', 'files', file_id])
+			.then((res) => {
+				this.mongoContext
+				.deleteFile(res['mongo_id'])
+				.then(() => {
+					this
+					.sqlContext
+					.db('disk')
+					.query(`DELETE FROM ?? WHERE id = ?`,
+						['files', file_id])
+					.then(() => {
+						resolve()
+					});
+				})
+			});
+		});
 	}
 
 	public uploadFile(file_id, file_name, attacher, ext, file) {
@@ -224,21 +256,49 @@ export default class DbContext {
 				let chat_parse = String(attacher).match(/(chat)_([^.]+)/);
 				let user_parse = String(attacher).match(/(user)_([^.]+)/);
 				if (wall_parse) f_attacher = `walls:${attacher}`;
-				if (chat_parse) f_attacher = `chats:${attacher}`;
-				if (user_parse) f_attacher = `users:${attacher}`;
-                this.fileProvider.addFile(file_id, f_attacher)
-                    .then((info) => {
-                    	this.sqlContext.db('disk')
-                    	.query(`INSERT INTO ??
-                    	 (id, name, privacy, ext, mongo_id)
-                    	 VALUES (?, ?, ?, ?, ?)`,
-                    	 ['files', file_id, file_name, 'public', ext, m_stream.id.toString()])
-                    	.then(() => {
-                        	resolve(`/disk/${attacher}/${file_id}`);
-                    	});
-                    });
+				else if (chat_parse) f_attacher = `chats:${attacher}`;
+				else if (user_parse) f_attacher = `users:${attacher}`;
+				else {
+					reject();
+				}
+
+				let a_token = this.fileProvider.generateAttachToken(f_attacher, file_id);
+
+				setTimeout(() => {
+					this.deleteFile(file_id);
+				}, 1000 * 60 * 5);
+
+				this.sqlContext.db('disk')
+            	.query(`INSERT INTO ??
+            	 (id, name, privacy, ext, mongo_id)
+            	 VALUES (?, ?, ?, ?, ?)`,
+            	 ['files', file_id, file_name, 'public', ext, m_stream.id.toString()])
+            	.then(() => {
+                	resolve({ 
+                		ext: ext,
+                		name: file_name,
+                		file_url: `/disk/${attacher}/${file_id}`,
+                		attach_token: a_token 
+                	});
+            	});
             });
 		});
+	}
+
+	public attachFile(a_token) {
+		let tData = this.fileProvider.getAttachTokenData(a_token);
+		return new Promise((resolve, reject) => {
+			if (tData == AppTypes.TIME_BANNED 
+				|| tData == AppTypes.NOT_EXIST)
+				return reject(AppTypes.ERROR);
+
+			this.fileProvider.attachFile(tData.file_id, tData.object_fid)
+            .then((info) => {
+            	resolve(AppTypes.SUCCESS);
+            });
+			
+		});
+
 	}
 
 	public getFileList(attacher) {

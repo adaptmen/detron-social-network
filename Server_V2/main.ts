@@ -6,6 +6,7 @@ import express = require('express');
 import busboy = require('connect-busboy');
 import Cookies = require('cookies');
 import * as socketIo from 'socket.io';
+const FileType = require('stream-file-type')
 
 import path = require("path");
 var config = require('./config.json');
@@ -24,7 +25,6 @@ var smsProvider = new SmsProvider();
 var sqlContext = new SqlContext();
 
 const readChunk = require('read-chunk');
-const fileType = require('file-type');
 
 var securityHelper = new SecurityHelper();
 var store = new Store({ path: 'phones.json' });
@@ -184,6 +184,20 @@ app.get('/disk/wall_*/:file_id', (req, res) => {
 	});
 });
 
+app.post('/disk/attach-file/:a_token', (req, res) => {
+	let a_token = req.params.a_token;
+	dbContext
+	.attachFile(a_token)
+	.then(() => {
+		res.status = 200;
+		res.send({ ans: 'ok' });
+	})
+	.catch(() => {
+		res.status = 403;
+		res.end("Error");
+	});
+});
+
 app.post('/disk/upload/:access_token', (req, res) => {
 
 	let access_token = req.params.access_token;
@@ -200,63 +214,38 @@ app.post('/disk/upload/:access_token', (req, res) => {
 	else {
 		req.pipe(req.busboy);
 		req.busboy.on('file', function (fieldname, file, file_name, encoding, mimetype) {
-
-			function readFirstBytes() {
-				var chunk = file.read(5);
-				if (!chunk)
-					return file.once('readable', readFirstBytes);
-				var ext = fileType(chunk)['ext'];
-				let ext_true = dbContext.accessFileExt(ext);
-				let file_id = `${securityHelper.generateFileId()}`;
-				if (ext_true) {
-					file.unshift(chunk);
-					
-					dbContext
-					.uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
-					.then((result) => {
-						console.log(result);
-						res.status = 200;
-						res.send({ file_url: result });
-					})
-					.catch((err) => {
+			const detector = new FileType();
+			
+			detector.fileTypePromise().then((fileType) => {
+				if (fileType !== null) {
+					var ext = fileType['ext'];
+					let ext_true = dbContext.accessFileExt(ext);
+					let file_id = `${securityHelper.generateFileId()}`;
+					if (ext_true) {
+						dbContext
+						.uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
+						.then((result) => {
+							console.log(result);
+							res.status = 200;
+							res.send(result);
+						})
+						.catch((err) => {
+							res.status = 403;
+							res.end('Error');
+						});
+					} else {
+						file.resume();
 						res.status = 403;
 						res.end('Error');
-					});
+					}
 				} else {
-					console.error('Rejected file of type ' + ext);
 					file.resume();
 					res.status = 403;
 					res.end('Error');
 				}
-			}
+			});
 
-		readFirstBytes();
-
-			//console.log(fieldname, file, file_name, encoding, mimetype);
-
-			let ext = 'jpg';
-
-			let ext_true = true;//dbContext.accessFileExt(ext);
-			let file_id = `${securityHelper.generateFileId()}`;
-
-			if (ext_true) {
-				dbContext
-				.uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
-				.then((result) => {
-					console.log(result);
-					res.status = 200;
-					res.send({ file_url: result });
-				})
-				.catch((err) => {
-					res.status = 403;
-					res.end('Error');
-				});
-			}
-			else {
-				res.status = 403;
-				res.end = 'Ext failed';
-			}
-
+			file.pipe(detector).resume();
 		});
 	}
 

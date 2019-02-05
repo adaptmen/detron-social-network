@@ -49,6 +49,18 @@ $avatar_width: 175px
 			font-size: 12px
 			margin: 7px
 
+#wall_info
+	font-size: 16px
+
+	.label
+		dislpay: inline-block
+		float: left
+
+	.data
+		dislpay: inline-block
+		float: right
+		opacity: .7
+
 #file_list
 	width: $avatar_width - 15px
 	display: grid
@@ -59,6 +71,8 @@ $avatar_width: 175px
 		.icon
 			img
 				width: $avatar_width/3
+				height: 40px
+				overflow: hidden
 
 		.file_name
 			max-width: $avatar_width/3

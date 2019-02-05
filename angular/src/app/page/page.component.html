@@ -20,7 +20,7 @@
 			</button>
 		</div>
 		<div id="wall_info" *ngIf="page.wall">
-			<span>Файлы стены</span><span>{{ page.wall.files.length }}</span>
+			<span class="label">Файлы стены</span><span class="data">{{ page.wall.files.length }}</span>
 			<div id="file_list">
 				<div class="file_item" *ngFor="let file of page.wall.files">
 					<div class="icon">

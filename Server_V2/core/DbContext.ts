@@ -210,6 +210,10 @@ export default class DbContext {
 		});
 	}
 
+	public deleteFile(file_id) {
+		
+	}
+
 	public uploadFile(file_id, file_name, attacher, ext, file) {
 		return new Promise((resolve, reject) => {
 			let m_stream = this.mongoContext.writeStream(file_id, {});

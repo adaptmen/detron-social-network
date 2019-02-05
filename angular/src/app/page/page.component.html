@@ -1,4 +1,4 @@
-<div *ngIf="page" id="page">
+<div *ngIf="page && appService.user" id="page">
 	<div id="left">
 		<div id="avatar">
 			<img src="{{ page.avatar_link || 'https://датавыхода.рф/wp-content/uploads/2018/05/pipec-3-4.jpeg' }}" alt="">

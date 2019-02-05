@@ -192,6 +192,8 @@ var DbContext = (function () {
             }
         });
     };
+    DbContext.prototype.deleteFile = function (file_id) {
+    };
     DbContext.prototype.uploadFile = function (file_id, file_name, attacher, ext, file) {
         var _this = this;
         return new Promise(function (resolve, reject) {

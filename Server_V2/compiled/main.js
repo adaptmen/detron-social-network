@@ -123,12 +123,23 @@ app.get('/*.map', function (req, res) {
 app.get('/*.ico', function (req, res) {
     res.sendFile(path.join(__dirname, './public', req.params['0'] + ".ico"));
 });
+app.get('/assets/*', function (req, res) {
+    res.sendFile(path.join(__dirname, './public/assets', "" + req.params['0']));
+});
 app.get('/*.ttf', function (req, res) {
     try {
         res.sendFile(path.join(__dirname, './public/', req.params['0'] + ".ttf"));
     }
     catch (e) {
         res.sendFile(path.join(__dirname, './public/assets/', req.params['0'] + ".ttf"));
+    }
+});
+app.get('/*.png', function (req, res) {
+    try {
+        res.sendFile(path.join(__dirname, './public/', req.params['0'] + ".png"));
+    }
+    catch (e) {
+        res.sendFile(path.join(__dirname, './public/assets/', req.params['0'] + ".png"));
     }
 });
 app.get('/disk/wall_*/:file_id', function (req, res) {

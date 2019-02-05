@@ -50,8 +50,10 @@ $avatar_width: 175px
 			margin: 7px
 
 #file_list
+	width: $avatar_width - 15px
 	display: grid
-	grid-template-columns: 1fr 1fr 1fr
+	grid-template-columns: repeat($avatar_width/3, 3)
+	grid-gap: 5px
 
 	.file_item
 		.icon
@@ -66,4 +68,3 @@ $avatar_width: 175px
     	.file_name
     		text-overflow: ellipsis
     		overflow: hidden
-    		white-space: nowrap

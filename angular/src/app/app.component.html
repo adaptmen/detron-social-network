@@ -1,11 +1,13 @@
-<div id="menu">
-    <app-menu></app-menu>
-</div>
-<div id="app">
-    <router-outlet></router-outlet>
-</div>
-<div id="history">
-    <app-history></app-history>
+<div id="content">
+	<div id="menu">
+	    <app-menu></app-menu>
+	</div>
+	<div id="app">
+	    <router-outlet></router-outlet>
+	</div>
+	<div id="history">
+	    <app-history></app-history>
+	</div>
 </div>
 <div id="upload" *ngIf="upload_view">
 	<app-upload *ngIf="upload_view" [object_fid]="object_fid" (close)="closeUpload($event)"></app-upload>

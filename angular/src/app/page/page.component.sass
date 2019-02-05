@@ -51,6 +51,7 @@ $avatar_width: 175px
 
 #wall_info
 	font-size: 16px
+	margin-top: 5px
 
 	.label
 		dislpay: inline-block
@@ -62,14 +63,15 @@ $avatar_width: 175px
 		opacity: .7
 
 #file_list
+	margin-top: 3px
 	width: $avatar_width - 15px
 	display: grid
-	grid-template-columns: repeat($avatar_width/3, 3)
+	grid-template-columns: repeat(3, $avatar_width/3)
 	grid-gap: 5px
 
 	.file_item
 		grid-column: auto
-		
+
 		.icon
 			width: $avatar_width/3
 			height: 40px

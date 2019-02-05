@@ -19,7 +19,7 @@ export class PageComponent implements OnInit {
 	public error = false;
 
 	public getFilePreview(file: any) {
-		if (file.type == 'jpg' || file.type == 'jpeg' || file.type == 'png') {
+		if (file.ext == 'jpg' || file.ext == 'jpeg' || file.ext == 'png') {
 			return `/disk/wall_${this.page.wall.id}/${file.id}`;
 		}
 	}

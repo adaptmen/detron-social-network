@@ -198,7 +198,17 @@ var DbContext = (function () {
             var m_stream = _this.mongoContext.writeStream(file_id, {});
             file.pipe(m_stream);
             m_stream.on('finish', function () {
-                _this.fileProvider.addFile(file_id, attacher)
+                var f_attacher = '';
+                var wall_parse = String(attacher).match(/(wall)_([^.]+)/);
+                var chat_parse = String(attacher).match(/(chat)_([^.]+)/);
+                var user_parse = String(attacher).match(/(user)_([^.]+)/);
+                if (wall_parse)
+                    f_attacher = "walls:" + attacher;
+                if (chat_parse)
+                    f_attacher = "chats:" + attacher;
+                if (user_parse)
+                    f_attacher = "users:" + attacher;
+                _this.fileProvider.addFile(file_id, f_attacher)
                     .then(function (info) {
                     _this.sqlContext.db('disk')
                         .query("INSERT INTO ??\n                    \t (id, name, privacy, ext, mongo_id)\n                    \t VALUES (?, ?, ?, ?, ?)", ['files', file_id, file_name, 'public', ext, m_stream.id.toString()])
@@ -225,9 +235,12 @@ var DbContext = (function () {
                 _this
                     .sqlContext
                     .db('disk')
-                    .query("SELECT ??, ??, ?? FROM ?? WHERE id IN (?)", ['id', 'name', 'type', 'files', files_ids])
+                    .query("SELECT ??, ??, ?? FROM ?? WHERE id IN (?)", ['id', 'name', 'ext', 'files', files_ids])
                     .then(function (s_files) {
-                    resolve(s_files);
+                    if (s_files.name)
+                        return resolve([s_files]);
+                    else
+                        resolve(s_files);
                 });
             });
         });
@@ -313,7 +326,6 @@ var DbContext = (function () {
                             .then(function (posts) {
                             page_1.wall['posts'] = posts;
                             page_1.wall['id'] = ans.wall_id;
-                            console.log("Wall id:", page_1.wall['id']);
                             _this
                                 .getFileList("walls:wall_" + page_1.wall['id'])
                                 .then(function (file_list) {

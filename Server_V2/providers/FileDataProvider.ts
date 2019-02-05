@@ -82,9 +82,9 @@ export default class FileDataProvider extends DataProvider {
   public getByOwner(owner) {
     let sparql =
       `${this.sparqlHelper.prefixes}
-        SELECT ?file_id ?mongo_id
+        SELECT ?file_id
         FROM <${this.sparqlHelper.graphs_uri.files}>
-        { ?file files:attacher ${owner}; type:id ?file_id; files:mongo_id ?mongo_id .
+        { ?file files:attacher ${owner}; type:id ?file_id .
         }`;
     return this.query(sparql, 'query');
   }

@@ -51,7 +51,7 @@ var FileDataProvider = (function (_super) {
         return this.query(sparql, 'query');
     };
     FileDataProvider.prototype.getByOwner = function (owner) {
-        var sparql = this.sparqlHelper.prefixes + "\n        SELECT ?file_id ?mongo_id\n        FROM <" + this.sparqlHelper.graphs_uri.files + ">\n        { ?file files:attacher " + owner + "; type:id ?file_id; files:mongo_id ?mongo_id .\n        }";
+        var sparql = this.sparqlHelper.prefixes + "\n        SELECT ?file_id\n        FROM <" + this.sparqlHelper.graphs_uri.files + ">\n        { ?file files:attacher " + owner + "; type:id ?file_id .\n        }";
         return this.query(sparql, 'query');
     };
     return FileDataProvider;

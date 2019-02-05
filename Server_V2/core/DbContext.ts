@@ -215,7 +215,14 @@ export default class DbContext {
 			let m_stream = this.mongoContext.writeStream(file_id, {});
             file.pipe(m_stream);
             m_stream.on('finish', () => {
-                this.fileProvider.addFile(file_id, attacher)
+            	let f_attacher = '';
+            	let wall_parse = String(attacher).match(/(wall)_([^.]+)/);
+				let chat_parse = String(attacher).match(/(chat)_([^.]+)/);
+				let user_parse = String(attacher).match(/(user)_([^.]+)/);
+				if (wall_parse) f_attacher = `walls:${attacher}`;
+				if (chat_parse) f_attacher = `chats:${attacher}`;
+				if (user_parse) f_attacher = `users:${attacher}`;
+                this.fileProvider.addFile(file_id, f_attacher)
                     .then((info) => {
                     	this.sqlContext.db('disk')
                     	.query(`INSERT INTO ??
@@ -245,9 +252,10 @@ export default class DbContext {
 				.sqlContext
 				.db('disk')
 				.query(`SELECT ??, ??, ?? FROM ?? WHERE id IN (?)`, 
-					['id', 'name', 'type', 'files', files_ids])
-				.then((s_files) => {
-					resolve(s_files);
+					['id', 'name', 'ext', 'files', files_ids])
+				.then((s_files: any) => {
+					if (s_files.name) return resolve([s_files]);
+					else resolve(s_files);
 				});
 			});
 		});
@@ -333,7 +341,6 @@ export default class DbContext {
 						.then((posts) => {
 							page.wall['posts'] = posts;
 							page.wall['id'] = ans.wall_id;
-							console.log("Wall id:", page.wall['id']);
 							this
 							.getFileList(`walls:wall_${page.wall['id']}`)
 							.then((file_list) => {

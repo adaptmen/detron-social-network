@@ -38,7 +38,7 @@ export class UploadComponent implements OnInit {
     			this.cancel();
     		}
     		else {
-    			this.status_string = 'Произощла ошибка. Попробуйте заново';
+    			this.status_string = 'Произошла ошибка. Попробуйте заново';
     		}
     	});
     	return subj;

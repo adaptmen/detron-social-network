@@ -9,7 +9,7 @@
 		<img *ngIf="preview.file_url" src="{{ preview.file_url }}" alt="">
 		<p class="ext">Тип: {{ preview.ext }}</p>
 		<p class="name">Имя: {{ preview.name }}</p>
-		<p class="href">Ссылка: <a href="{{ preview.file_url }}">{{ preview.file_url }}</a></p>
+		<p class="href">Ссылка: <a target="blank" href="{{ preview.file_url }}">{{ preview.file_url }}</a></p>
 	</div>
 	<button id="attach_btn" *ngIf="attach_token" (click)="attach()">Прикрепить</button>
 	<button id="close_btn" (click)="cancel()">Закрыть</button>

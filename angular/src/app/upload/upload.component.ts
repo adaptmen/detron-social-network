@@ -54,6 +54,7 @@ export class UploadComponent implements OnInit {
 		    .uploadService
 		    .uploadFile(file, this.object_fid)
 		    .subscribe((ans: any) => {
+		    	console.log('[ UploadComponent ]', ans);
 		    	if (ans === SocketTypes.DENIED) {
 		    		this.status_string = 'Доступ запрещён. Вы не можете загружать файлы на эту стену';
 		    	}

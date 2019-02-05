@@ -201,16 +201,40 @@ app.post('/disk/upload/:access_token', (req, res) => {
 		req.pipe(req.busboy);
 		req.busboy.on('file', function (fieldname, file, file_name, encoding, mimetype) {
 
+			function readFirstBytes() {
+				var chunk = file.read(5);
+				if (!chunk)
+					return file.once('readable', readFirstBytes);
+				var ext = fileType(chunk)['ext'];
+				let ext_true = dbContext.accessFileExt(ext);
+				let file_id = `${securityHelper.generateFileId()}`;
+				if (ext_true) {
+					file.unshift(chunk);
+					
+					dbContext
+					.uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
+					.then((result) => {
+						console.log(result);
+						res.status = 200;
+						res.send({ file_url: result });
+					})
+					.catch((err) => {
+						res.status = 403;
+						res.end('Error');
+					});
+				} else {
+					console.error('Rejected file of type ' + ext);
+					file.resume();
+					res.status = 403;
+					res.end('Error');
+				}
+			}
+
+		readFirstBytes();
+
 			//console.log(fieldname, file, file_name, encoding, mimetype);
 
 			let ext = 'jpg';
-
-			file.on('data', (chunk) => {
-				//ext = fileType(chunk)['ext'];
-				//let buffer = file.read(fileType.minimumBytes);
-				//let ext = 'jpeg';//fileType(buffer)['ext'];	
-				//console.log(fileType(chunk)['ext']);		
-			});
 
 			let ext_true = true;//dbContext.accessFileExt(ext);
 			let file_id = `${securityHelper.generateFileId()}`;

@@ -12,7 +12,7 @@ export class HttpService {
 	}
 
 	public post(url, body, options?) {
-		console.log('<==');
+		console.log('<==', url, body);
 		return this.http.post(url, body, options || {});
 	}
 

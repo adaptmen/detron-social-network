@@ -63,9 +63,10 @@ export class UploadComponent implements OnInit {
 		    	}
 		    	else {
 		    		if (ans.ext) {
-		    			this.preview['file_url'] = ans.file_url;
-		    			this.preview['name'] = ans.name;
-		    			this.preview['ext'] = ans.ext;
+		    			this.preview = {};
+		    			this.preview.file_url = ans.file_url;
+		    			this.preview.name = ans.name;
+		    			this.preview.ext = ans.ext;
 		    			this.attach_token = ans.attach_token;
 		    		}
 		    	}

@@ -4,7 +4,7 @@
 	<h2>Upload file</h2>
 	<input id="file_field" type="file" (change)="onChange($event)" placeholder="Upload file" accept=".jpg,.jpeg,.png">
 	<h3>{{ status_string }}</h3>
-	<div id="preview" *ngIf="preview.ext">
+	<div id="preview" *ngIf="preview">
 		<h3>Предпросмотр</h3>
 		<img *ngIf="preview.file_url" src="{{ preview.file_url }}" alt="">
 		<p class="ext">Тип: {{ preview.ext }}</p>

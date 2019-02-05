@@ -17,7 +17,7 @@ export class UploadComponent implements OnInit {
 	@Input() object_fid = "";
     @Output() close = new EventEmitter<any>();
 
-	public preview = {};
+	public preview: any;
 	public attach_token = '';
 	public status_string = '';
 

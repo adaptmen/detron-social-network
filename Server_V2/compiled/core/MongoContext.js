@@ -4,7 +4,7 @@ var mongo = require('mongodb');
 var MongoClient = mongo.MongoClient;
 var DB_URL = "localhost:27017";
 var DB_NAME = "local";
-var MongoId = mongo.ObjectId;
+var MongoId = mongo.ObjectID;
 var MongoContext = (function () {
     function MongoContext() {
         var _this = this;

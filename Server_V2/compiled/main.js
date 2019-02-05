@@ -131,8 +131,6 @@ app.get('/*.ttf', function (req, res) {
         res.sendFile(path.join(__dirname, './public/assets/', req.params['0'] + ".ttf"));
     }
 });
-app.get('/disk/:object_fid/:file_id', function (req, res) {
-});
 app.get('/disk/wall_*/:file_id', function (req, res) {
     dbContext
         .getFileStream(req.params['file_id'])
@@ -153,14 +151,17 @@ app.post('/disk/upload/:access_token', function (req, res) {
     }
     else {
         req.pipe(req.busboy);
-        req.busboy.on('file', function (fieldname, file, file_name) {
-            var ext = fileType(file)['ext'];
-            var ext_true = dbContext.accessFileExt(ext);
+        req.busboy.on('file', function (fieldname, file, file_name, encoding, mimetype) {
+            var ext = 'jpg';
+            file.on('data', function (chunk) {
+            });
+            var ext_true = true;
             var file_id = "" + securityHelper.generateFileId();
             if (ext_true) {
                 dbContext
                     .uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
                     .then(function (result) {
+                    console.log(result);
                     res.status = 200;
                     res.send(result);
                 })

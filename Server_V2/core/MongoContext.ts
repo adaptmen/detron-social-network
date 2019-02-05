@@ -2,7 +2,7 @@ const mongo = require('mongodb');
 const MongoClient = mongo.MongoClient;
 const DB_URL = "localhost:27017";
 const DB_NAME = "local";
-const MongoId = mongo.ObjectId;
+const MongoId = mongo.ObjectID;
 
 export default class MongoContext {
 

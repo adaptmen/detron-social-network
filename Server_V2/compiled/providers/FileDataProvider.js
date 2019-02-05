@@ -39,6 +39,8 @@ var FileDataProvider = (function (_super) {
             delete this.token_store[token];
             return AppTypes_1.default.TIME_BANNED;
         }
+        else
+            return this.token_store[token];
     };
     FileDataProvider.prototype.addFile = function (file_id, attacher) {
         var sparql = this.sparqlHelper.prefixes + "\n        INSERT DATA { \n          GRAPH <" + this.sparqlHelper.graphs_uri.files + ">\n            { files:file_" + file_id + " type:id \"" + file_id + "\";\n              files:attacher " + attacher + " ;\n              files:privacy \"public\" } }";

@@ -100,12 +100,10 @@ var DbContext = (function () {
                 return reject(AppTypes_1.default.ERROR);
             console.log(user_id, object_fid);
             if (wall_parse) {
-                console.log(wall_parse);
                 _this
                     .wallProvider
                     .getOwnerInfo(wall_parse[2])
                     .then(function (res) {
-                    console.log(res);
                     return res[0].id == user_id
                         ? resolve(AppTypes_1.default.SUCCESS)
                         : resolve(AppTypes_1.default.ERROR);
@@ -143,7 +141,7 @@ var DbContext = (function () {
         var _this = this;
         return this
             .sqlContext.db('disk')
-            .query("SELECT mongo_id FROM ?? WHERE id = ?'", ['files', file_id])
+            .query("SELECT mongo_id FROM ?? WHERE id = ?", ['files', file_id])
             .then(function (res) {
             return _this.mongoContext.readStream(res.mongo_id);
         });
@@ -200,11 +198,10 @@ var DbContext = (function () {
             var m_stream = _this.mongoContext.writeStream(file_id, {});
             file.pipe(m_stream);
             m_stream.on('finish', function () {
-                var _this = this;
-                this.fileProvider.addFile(file_id, attacher)
+                _this.fileProvider.addFile(file_id, attacher)
                     .then(function (info) {
                     _this.sqlContext.db('disk')
-                        .query("INSERT INTO ??\n                    \t (id, name, privacy, type, mongo_id)\n                    \t VALUES (?, ?, ?, ?, ?)", ['files', file_id, file_name, 'public', ext, m_stream.id])
+                        .query("INSERT INTO ??\n                    \t (id, name, privacy, ext, mongo_id)\n                    \t VALUES (?, ?, ?, ?, ?)", ['files', file_id, file_name, 'public', ext, m_stream.id.toString()])
                         .then(function () {
                         resolve("/disk/" + attacher + "/" + file_id);
                     });

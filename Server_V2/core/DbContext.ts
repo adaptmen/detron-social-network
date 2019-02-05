@@ -115,12 +115,10 @@ export default class DbContext {
 			if(!wall_parse && !chat_parse && !user_parse) return reject(AppTypes.ERROR);
 			console.log(user_id, object_fid);
 			if (wall_parse) {
-				console.log(wall_parse);
 				this
 				.wallProvider
 				.getOwnerInfo(wall_parse[2])
 				.then((res) => {
-					console.log(res);
 					return res[0].id == user_id 
 					? resolve(AppTypes.SUCCESS)
 					: resolve(AppTypes.ERROR)
@@ -158,7 +156,7 @@ export default class DbContext {
 	public getFileStream(file_id) {
 		return this
 		.sqlContext.db('disk')
-		.query(`SELECT mongo_id FROM ?? WHERE id = ?'`, 
+		.query(`SELECT mongo_id FROM ?? WHERE id = ?`, 
 			['files', file_id])
 		.then((res: any) => {
 			return this.mongoContext.readStream(res.mongo_id)
@@ -216,14 +214,14 @@ export default class DbContext {
 		return new Promise((resolve, reject) => {
 			let m_stream = this.mongoContext.writeStream(file_id, {});
             file.pipe(m_stream);
-            m_stream.on('finish', function () {
+            m_stream.on('finish', () => {
                 this.fileProvider.addFile(file_id, attacher)
                     .then((info) => {
                     	this.sqlContext.db('disk')
                     	.query(`INSERT INTO ??
-                    	 (id, name, privacy, type, mongo_id)
+                    	 (id, name, privacy, ext, mongo_id)
                     	 VALUES (?, ?, ?, ?, ?)`,
-                    	 ['files', file_id, file_name, 'public', ext, m_stream.id])
+                    	 ['files', file_id, file_name, 'public', ext, m_stream.id.toString()])
                     	.then(() => {
                         	resolve(`/disk/${attacher}/${file_id}`);
                     	});

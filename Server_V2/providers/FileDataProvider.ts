@@ -28,7 +28,7 @@ export default class FileDataProvider extends DataProvider {
             delete this.token_store[token];
             return AppTypes.TIME_BANNED;
         }
-
+        else return this.token_store[token];
     }
 
   // public addToken(token, uf_token, user_id) {

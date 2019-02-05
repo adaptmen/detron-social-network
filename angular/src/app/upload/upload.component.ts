@@ -38,6 +38,9 @@ export class UploadComponent implements OnInit {
 		    	if (ans === SocketTypes.DENIED) {
 		    		console.log('denied');
 		    	}
+		    	if (ans === SocketTypes.ERROR) {
+		    		console.log('error');
+		    	}
 		    	else {
 		    		console.log(ans);
 		    	}

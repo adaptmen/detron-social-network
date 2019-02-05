@@ -12,7 +12,7 @@ var SecurityHelper = (function () {
         return this.get_r(14) + "-" + this.get_r(10);
     };
     SecurityHelper.prototype.generateFileId = function () {
-        return this.get_r(14) + "-" + this.get_r(10) + "-" + this.get_r(20);
+        return "" + this.get_r(14);
     };
     SecurityHelper.prototype.generateLongId = function () {
         return this.get_r(14) + "-" + this.get_r(10) + "-" + this.get_r(20) + "-" + this.get_r(14) + "-" + this.get_r(10) + "-" + this.get_r(20);

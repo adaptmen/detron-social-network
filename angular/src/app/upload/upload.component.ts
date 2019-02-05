@@ -34,7 +34,7 @@ export class UploadComponent implements OnInit {
 		    this
 		    .uploadService
 		    .uploadFile(file, this.object_fid)
-		    .subscribe((ans) => {
+		    .subscribe((ans: any) => {
 		    	if (ans === SocketTypes.DENIED) {
 		    		console.log('denied');
 		    	}
@@ -42,7 +42,9 @@ export class UploadComponent implements OnInit {
 		    		console.log('error');
 		    	}
 		    	else {
-		    		console.log(ans);
+		    		if (ans.file_url) {
+		    			this.preview['file_url'] = ans.file_url;
+		    		}
 		    	}
 		    });
     	}

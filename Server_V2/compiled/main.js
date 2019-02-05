@@ -163,7 +163,7 @@ app.post('/disk/upload/:access_token', function (req, res) {
                     .then(function (result) {
                     console.log(result);
                     res.status = 200;
-                    res.send(result);
+                    res.send({ file_url: result });
                 })
                     .catch(function (err) {
                     res.status = 403;

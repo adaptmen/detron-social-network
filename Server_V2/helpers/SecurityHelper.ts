@@ -12,7 +12,7 @@ export default class SecurityHelper {
   }
 
   public generateFileId() {
-    return `${this.get_r(14)}-${this.get_r(10)}-${this.get_r(20)}`;
+    return `${this.get_r(14)}`;
   }
 
   public generateLongId() {

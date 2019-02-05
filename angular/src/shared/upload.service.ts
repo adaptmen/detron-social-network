@@ -49,11 +49,9 @@ export class UploadService {
 			.post(`${this.UPLOAD_URL}/${ans}`, formData, options)
 		    .subscribe(
 		        (data) => {
-		        	console.log(data);
 		        	subj.next(data);
 		        },
 		        (error) => {
-		        	console.log(error);
 		        	subj.next(SocketTypes.ERROR)
 		        }
 		    )

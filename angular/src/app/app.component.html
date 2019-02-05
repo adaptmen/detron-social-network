@@ -7,4 +7,6 @@
 <div id="history">
     <app-history></app-history>
 </div>
-<app-upload *ngIf="upload_view" [object_fid]="object_fid" (close)="closeUpload($event)"></app-upload>
+<div id="upload">
+	<app-upload *ngIf="upload_view" [object_fid]="object_fid" (close)="closeUpload($event)"></app-upload>
+</div>

@@ -10,7 +10,7 @@
 			</button>
 			<button id="upload_btn" *ngIf="page.id == appService.user.id"
 			(click)="viewUpload('wall_' + page.wall.id)">
-				Upload
+				Добавить файлы на стену
 			</button>
 			<button id="friend_btn" *ngIf="page.id != appService.user.id">
 				Добавить в друзья
@@ -18,9 +18,15 @@
 			<button id="subscribe_btn" *ngIf="page.id != appService.user.id">
 				Подписаться
 			</button>
+			<button id="chat_btn" *ngIf="page.id != appService.user.id">
+				Перейти к диалогу
+			</button>
 		</div>
 		<div id="wall_info" *ngIf="page.wall">
-			<span class="label">Файлы стены</span><span class="data">{{ page.wall.files.length }}</span>
+			<span class="label">Файлы стены</span>
+			<span class="data">
+				<div class="icon"><img src="../../assets/plus.png" alt="Add" title="Добавить файлы на стену"></div>{{ page.wall.files.length }}
+			</span>
 			<div id="file_list">
 				<div class="file_item" *ngFor="let file of page.wall.files">
 					<div class="icon">

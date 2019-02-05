@@ -1,19 +1,22 @@
 $menu_width: 130px
 $history_width: 44px
 
-#menu
-	position: fixed
-	float: left
-	width: $menu_width
+#content
+	position: absolute
 
-#history
-	position: fixed
-	float: right
-	width: $history_width
+	#menu
+		position: fixed
+		float: left
+		width: $menu_width
 
-#app
-	width: calc(100% - $history_width - $menu_width)
-	margin-left: $menu_width
+	#history
+		position: fixed
+		float: right
+		width: $history_width
+
+	#app
+		width: calc(100% - $history_width - $menu_width)
+		margin-left: $menu_width
 
 #upload
 	position: fixed

@@ -68,13 +68,16 @@ $avatar_width: 175px
 	grid-gap: 5px
 
 	.file_item
+		grid-column: auto
+		
 		.icon
 			width: $avatar_width/3
 			height: 40px
 			overflow: hidden
+			text-align: center
 
 			img
-				width: $avatar_width/3
+				max-width: $avatar_width/3
 
 		.file_name
 			max-width: $avatar_width/3

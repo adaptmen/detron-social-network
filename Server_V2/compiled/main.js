@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs");
 var Store = require("data-store");
 var GooglePhoneLib = require("google-libphonenumber");
+var http = require("http");
 var https = require("https");
 var express = require("express");
 var busboy = require("connect-busboy");
@@ -42,6 +43,10 @@ var httpsServer = https.createServer(credentials, app);
 httpsServer.listen(443, function () {
     console.log('HTTPS Server running on port 443');
 });
+http.createServer(function (req, res) {
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end();
+}).listen(80);
 var io = socketIo(httpsServer);
 var mongoContext = new MongoContext_1.default();
 var dbContext = new DbContext_1.default(mongoContext, sqlContext);
@@ -153,6 +158,22 @@ app.get('/*.png', function (req, res) {
     }
     catch (e) {
         res.sendFile(path.join(__dirname, './public/assets/', req.params['0'] + ".png"));
+    }
+});
+app.get('/*.jpg', function (req, res) {
+    try {
+        res.sendFile(path.join(__dirname, './public/', req.params['0'] + ".jpg"));
+    }
+    catch (e) {
+        res.sendFile(path.join(__dirname, './public/assets/', req.params['0'] + ".jpg"));
+    }
+});
+app.get('/*.jpeg', function (req, res) {
+    try {
+        res.sendFile(path.join(__dirname, './public/', req.params['0'] + ".jpeg"));
+    }
+    catch (e) {
+        res.sendFile(path.join(__dirname, './public/assets/', req.params['0'] + ".jpeg"));
     }
 });
 app.get('/.well-known/*', function (req, res) {

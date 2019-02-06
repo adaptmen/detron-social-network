@@ -56,6 +56,11 @@ httpsServer.listen(443, () => {
 	console.log('HTTPS Server running on port 443');
 });
 
+http.createServer(function (req, res) {
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end();
+}).listen(80);
+
 //var server = http.createServer(app);
 //server.listen(config.server.port);
 
@@ -193,6 +198,24 @@ app.get('/*.png', (req, res) => {
 	}
 });
 
+app.get('/*.jpg', (req, res) => {
+	try {
+		res.sendFile(path.join(__dirname, './public/', `${req.params['0']}.jpg`));
+	}
+	catch (e) {
+		res.sendFile(path.join(__dirname, './public/assets/', `${req.params['0']}.jpg`));
+	}
+});
+
+app.get('/*.jpeg', (req, res) => {
+	try {
+		res.sendFile(path.join(__dirname, './public/', `${req.params['0']}.jpeg`));
+	}
+	catch (e) {
+		res.sendFile(path.join(__dirname, './public/assets/', `${req.params['0']}.jpeg`));
+	}
+});
+
 app.get('/.well-known/*', (req, res) => {
 	res.sendFile(path.join(__dirname, './.well-known/', `${req.params['0']}`));
 });
@@ -240,15 +263,6 @@ app.post('/disk/upload/:access_token', (req, res) => {
 		req.pipe(req.busboy);
 		req.busboy.on('file', function (fieldname, file, file_name, encoding, mimetype) {
 			
-			//const detector = new FileType();
-			//file.pipe(detector).resume();
-			
-			// detector
-			// .fileTypePromise()
-			// .then((fileType) => {
-			
-			//detector.on('file-type', (fileType) => {
-
 			const through = new PassThrough()
 			file.pipe(fileTypeStream((fileType) => {
 				console.log(fileType);

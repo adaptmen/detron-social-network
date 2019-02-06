@@ -1,7 +1,7 @@
 const environment = {
 	production: true,
 	api: {
-		host: '176.119.158.61',
+		host: 'detron.tech',
 		port: '443'
 	}
 };

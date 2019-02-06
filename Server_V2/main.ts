@@ -6,7 +6,10 @@ import express = require('express');
 import busboy = require('connect-busboy');
 import Cookies = require('cookies');
 import * as socketIo from 'socket.io';
-const FileType = require('stream-file-type')
+const FileType = require('stream-file-type');
+
+import fileTypeStream from 'file-type-stream'
+import { PassThrough } from 'stream'
 
 import path = require("path");
 var config = require('./config.json');
@@ -214,18 +217,27 @@ app.post('/disk/upload/:access_token', (req, res) => {
 	else {
 		req.pipe(req.busboy);
 		req.busboy.on('file', function (fieldname, file, file_name, encoding, mimetype) {
-			const detector = new FileType();
 			
-			detector.fileTypePromise().then((fileType) => {
+			//const detector = new FileType();
+			//file.pipe(detector).resume();
+			
+			// detector
+			// .fileTypePromise()
+			// .then((fileType) => {
+			
+			//detector.on('file-type', (fileType) => {
+
+			const through = new PassThrough()
+			file.pipe(fileTypeStream((fileType) => {
+				console.log(fileType);
 				if (fileType !== null) {
 					var ext = fileType['ext'];
 					let ext_true = dbContext.accessFileExt(ext);
 					let file_id = `${securityHelper.generateFileId()}`;
 					if (ext_true) {
 						dbContext
-						.uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
+						.uploadFile(file_id, file_name, tokenData['object_fid'], ext, through)
 						.then((result) => {
-							console.log(result);
 							res.status = 200;
 							res.send(result);
 						})
@@ -234,18 +246,15 @@ app.post('/disk/upload/:access_token', (req, res) => {
 							res.end('Error');
 						});
 					} else {
-						file.resume();
 						res.status = 403;
 						res.end('Error');
 					}
 				} else {
-					file.resume();
 					res.status = 403;
 					res.end('Error');
 				}
-			});
+			})).pipe(through);
 
-			file.pipe(detector).resume();
 		});
 	}
 

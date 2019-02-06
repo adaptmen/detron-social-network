@@ -34,7 +34,7 @@ export class UploadService {
 		.httpService
 		.post(`/disk/attach-file/${a_token}`, '')
 		.subscribe((ans: any) => {
-			if (ans.ok) subj.next(SocketTypes.SUCCESS);
+			if (ans.ans) subj.next(SocketTypes.SUCCESS);
 			else subj.next(SocketTypes.ERROR);
 		});
 		return subj;

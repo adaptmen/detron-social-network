@@ -8,6 +8,8 @@ var busboy = require("connect-busboy");
 var Cookies = require("cookies");
 var socketIo = require("socket.io");
 var FileType = require('stream-file-type');
+var file_type_stream_1 = require("file-type-stream");
+var stream_1 = require("stream");
 var path = require("path");
 var config = require('./config.json');
 var SocketContext_1 = require("./core/SocketContext");
@@ -176,17 +178,17 @@ app.post('/disk/upload/:access_token', function (req, res) {
     else {
         req.pipe(req.busboy);
         req.busboy.on('file', function (fieldname, file, file_name, encoding, mimetype) {
-            var detector = new FileType();
-            detector.fileTypePromise().then(function (fileType) {
+            var through = new stream_1.PassThrough();
+            file.pipe(file_type_stream_1.default(function (fileType) {
+                console.log(fileType);
                 if (fileType !== null) {
                     var ext = fileType['ext'];
                     var ext_true = dbContext.accessFileExt(ext);
                     var file_id = "" + securityHelper.generateFileId();
                     if (ext_true) {
                         dbContext
-                            .uploadFile(file_id, file_name, tokenData['object_fid'], ext, file)
+                            .uploadFile(file_id, file_name, tokenData['object_fid'], ext, through)
                             .then(function (result) {
-                            console.log(result);
                             res.status = 200;
                             res.send(result);
                         })
@@ -196,18 +198,15 @@ app.post('/disk/upload/:access_token', function (req, res) {
                         });
                     }
                     else {
-                        file.resume();
                         res.status = 403;
                         res.end('Error');
                     }
                 }
                 else {
-                    file.resume();
                     res.status = 403;
                     res.end('Error');
                 }
-            });
-            file.pipe(detector).resume();
+            })).pipe(through);
         });
     }
 });

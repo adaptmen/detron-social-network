@@ -17,6 +17,7 @@
     "crypto": "^1.0.1",
     "data-store": "^3.1.0",
     "express": "^4.16.4",
+    "file-type-stream": "^1.0.0",
     "google-libphonenumber": "^3.2.2",
     "mysql": "^2.16.0",
     "socket.io": "^2.2.0",

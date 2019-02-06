@@ -61,7 +61,7 @@ $avatar_width: 175px
 
 #wall_info
 	font-size: 20px
-	margin-top: 7px
+	margin-top: 10px
 
 	.label
 		dislpay: inline-block
@@ -79,11 +79,11 @@ $avatar_width: 175px
 				filter: invert(50)
 
 #file_list
-	margin-top: 3px
+	margin-top: 5px
 	padding: 0
 	width: $avatar_width - 10px
 	display: grid
-	grid-template-columns: repeat(3, $avatar_width/3)
+	grid-template-columns: repeat(3, ($avatar_width - 10px)/3)
 	grid-gap: 5px
 
 	.file_item

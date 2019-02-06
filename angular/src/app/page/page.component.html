@@ -19,7 +19,7 @@
 			</button>
 		</div>
 		<div id="wall_info" *ngIf="page.wall">
-			<span class="label">Файлы стены</span>
+			<span class="label" style="font-size: 16px">Файлы на стене</span>
 			<span class="data">
 				<div class="icon" (click)="viewUpload('wall_' + page.wall.id)"><img src="../../assets/plus.png" alt="Add" title="Добавить файлы на стену"></div>{{ page.wall.files.length }}
 			</span>

@@ -1,4 +1,4 @@
-<div id="left" *ngIf="appService.chats">
+<div id="left" *ngIf="appService.chats && appService.chats.length > 0">
 	<div *ngFor='let chat of appService.chats' routerLink="/mail/{{chat.id}}">
 		<div class="avatar">
 			<img src="{{ chat.avatar_link }}" alt="">
@@ -9,6 +9,6 @@
 <div id="right">
 	<router-outlet></router-outlet>
 </div>
-<div id="not" *ngIf="!appService.chats">
+<div id="not" *ngIf="appService.chats && appService.chats.length == 0">
 	На данный момент у Вас нет активных переписок.
 </div>

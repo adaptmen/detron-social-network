@@ -80,7 +80,8 @@ $avatar_width: 175px
 
 #file_list
 	margin-top: 3px
-	width: $avatar_width - 15px
+	padding: 0
+	width: $avatar_width - 10px
 	display: grid
 	grid-template-columns: repeat(3, $avatar_width/3)
 	grid-gap: 5px
@@ -89,16 +90,16 @@ $avatar_width: 175px
 		grid-column: auto
 
 		.file_icon
-			width: $avatar_width/3
+			width: ($avatar_width - 10px)/3
 			height: 40px
 			overflow: hidden
 			text-align: center
 
 			img
-				max-width: $avatar_width/3
+				max-width: ($avatar_width - 10px)/3
 
 		.file_name
-			max-width: $avatar_width/3
+			max-width: ($avatar_width - 10px)/3
 			font-size: 10px
 			margin-top: 2px
 			text-overflow: ellipsis

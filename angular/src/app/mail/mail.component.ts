@@ -13,7 +13,9 @@ export class MailComponent implements OnInit {
 
 	ngOnInit() {
 		this.appService.app_init.subscribe((app_data: any) => {
-			this.router.navigate([`/${app_data.chats.keys()[0]}`]);
+			if (app_data.chats.keys().length != 0) {
+				this.router.navigate([`/${app_data.chats.keys()[0]}`]);
+			}
 		});
 	}
 

@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var fs = require("fs");
 var Store = require("data-store");
 var GooglePhoneLib = require("google-libphonenumber");
-var http = require("http");
+var https = require("https");
 var express = require("express");
 var busboy = require("connect-busboy");
 var Cookies = require("cookies");
@@ -29,9 +30,19 @@ var PNF = GooglePhoneLib.PhoneNumberFormat;
 var phoneUtil = GooglePhoneLib.PhoneNumberUtil.getInstance();
 var app = express();
 app.use(busboy());
-var server = http.createServer(app);
-server.listen(config.server.port);
-var io = socketIo(server);
+var privateKey = fs.readFileSync('/etc/letsencrypt/live/detron.tech/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/detron.tech/cert.pem', 'utf8');
+var ca = fs.readFileSync('/etc/letsencrypt/live/detron.tech/chain.pem', 'utf8');
+var credentials = {
+    key: privateKey,
+    cert: certificate,
+    ca: ca
+};
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(443, function () {
+    console.log('HTTPS Server running on port 443');
+});
+var io = socketIo(httpsServer);
 var mongoContext = new MongoContext_1.default();
 var dbContext = new DbContext_1.default(mongoContext, sqlContext);
 var authRepository = new AuthRepository_1.default(dbContext);
@@ -143,6 +154,9 @@ app.get('/*.png', function (req, res) {
     catch (e) {
         res.sendFile(path.join(__dirname, './public/assets/', req.params['0'] + ".png"));
     }
+});
+app.get('/.well-known/*', function (req, res) {
+    res.sendFile(path.join(__dirname, './.well-known/', "" + req.params['0']));
 });
 app.get('/disk/wall_*/:file_id', function (req, res) {
     dbContext

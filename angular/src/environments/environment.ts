@@ -6,7 +6,7 @@ const environment = {
 	production: false,
 	api: {
 		host: '176.119.158.61',
-		port: '80'
+		port: '443'
 	}
 };
 

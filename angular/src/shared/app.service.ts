@@ -10,8 +10,8 @@ export class AppService implements OnInit {
 	constructor(private socketProvider: SocketProvider) {
 		this.socketProvider.onConnect.subscribe(() => {
 			this.onConnect.next();
-			this.inited = true;
 			this.socketProvider.on(SocketTypes.APP_INIT).subscribe((app_data) => {
+				this.inited = true;
 				this.user = app_data['user'];
 				this.chats = app_data['chats'];
 				this.app_init.next(app_data);
@@ -42,7 +42,7 @@ export class AppService implements OnInit {
 	public news_world_notify_count = 0;
 
 	public user = { id: '' };
-	public chats = {};
+	public chats = [];
 
 	public getUserId = () => this.user.id;
 

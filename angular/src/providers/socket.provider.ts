@@ -9,7 +9,7 @@ import { SecurityHelper } from '@helpers/security.helper';
 @Injectable()
 export class SocketProvider implements OnInit {
 
-    private host = `http://${env.api.host}:443`;
+    private host = `https://${env.api.host}:443`;
     private socket_url: string;
 
     public inited = false;

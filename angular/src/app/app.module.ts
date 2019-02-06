@@ -22,6 +22,7 @@ import { AppService } from '@shared/app.service';
 import { UploadService } from '@shared/upload.service';
 import { HttpService } from '@shared/http.service';
 import { CookieService } from 'ngx-cookie-service';
+import { AudioComponent } from './audio/audio.component';
 
 @NgModule({
 	declarations: [
@@ -36,7 +37,8 @@ import { CookieService } from 'ngx-cookie-service';
 		ChatComponent,
 		PageComponent,
 		HistoryComponent,
-		FriendComponent
+		FriendComponent,
+		AudioComponent
 	],
 	imports: [
 		BrowserModule,

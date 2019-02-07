@@ -10,7 +10,7 @@
 		<span class="label">Имя: </span>
 		<div class="s_block" (click)="name_input = true">
 			<span>{{ appService.user.name }}</span>
-			<input type="text" #nameInput value="{{ String(appService.user.name) }}" *ngIf="name_input">
+			<input type="text" #nameInput value="{{ appService.user.name.toString() }}" *ngIf="name_input">
 			<button *ngIf="name_input" (click)="setChange({name: nameInputRef.nativeElement.value })">Изменить</button>
 		</div>
 	</div>
@@ -18,7 +18,7 @@
 		<span class="label">Статус: </span>
 		<div class="s_block" (click)="status_input = true">
 			<span>{{ appService.user.status || 'не указано' }}</span>
-			<input type="text" #statusInput value="{{ String(appService.user.status) }}" *ngIf="status_input">
+			<input type="text" #statusInput value="{{ appService.user.status.toString() }}" *ngIf="status_input">
 			<button *ngIf="status_input" (click)="setChange({status: statusInputRef.nativeElement.value })">Изменить</button>
 		</div>
 	</div>
@@ -26,7 +26,7 @@
 		<span class="label">Возраст: </span>
 		<div class="s_block" (click)="age_input = true">
 			<span>{{ appService.user.age || 'не указано' }}</span>
-			<input type="text" #ageInput value="{{ String(appService.user.age) }}" *ngIf="age_input">
+			<input type="text" #ageInput value="{{ appService.user.age.toString() }}" *ngIf="age_input">
 			<button *ngIf="age_input" (click)="setChange({age: ageInputRef.nativeElement.value })">Изменить</button>
 		</div>
 	</div>
@@ -34,7 +34,7 @@
 		<span class="label">Город: </span>
 		<div class="s_block" (click)="city_input = true">
 			<span>{{ appService.user.city || 'не указано' }}</span>
-			<input type="text" #cityInput value="{{ String(appService.user.city) }}" *ngIf="city_input">
+			<input type="text" #cityInput value="{{ appService.user.city.toString() }}" *ngIf="city_input">
 			<button *ngIf="city_input" (click)="setChange({city: cityInputRef.nativeElement.value })">Изменить</button>
 		</div>
 	</div>

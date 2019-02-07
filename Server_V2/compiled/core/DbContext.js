@@ -11,6 +11,7 @@ var AppTypes_1 = require("./AppTypes");
 var DbContext = (function () {
     function DbContext(mongoContext, sqlContext) {
         this.securityHelper = new SecurityHelper_1.default();
+        this.file_timers = {};
         this.mongoContext = mongoContext;
         this.sqlContext = sqlContext;
         this.messageProvider = new MessageDataProvider_1.default(this.sqlContext);
@@ -247,9 +248,10 @@ var DbContext = (function () {
                     reject();
                 }
                 var a_token = _this.fileProvider.generateAttachToken(f_attacher, file_id);
-                setTimeout(function () {
+                var timer = setTimeout(function () {
                     _this.deleteFile(file_id);
                 }, 1000 * 60 * 5);
+                _this.file_timers[file_id] = timer;
                 _this.sqlContext.db('disk')
                     .query("INSERT INTO ??\n            \t (id, name, privacy, ext, mongo_id)\n            \t VALUES (?, ?, ?, ?, ?)", ['files', file_id, file_name, 'public', ext, m_stream.id.toString()])
                     .then(function () {
@@ -272,6 +274,8 @@ var DbContext = (function () {
                 return reject(AppTypes_1.default.ERROR);
             _this.fileProvider.attachFile(tData.file_id, tData.object_fid)
                 .then(function (info) {
+                clearTimeout(_this.file_timers[tData.file_id]);
+                delete _this.file_timers[tData.file_id];
                 resolve(AppTypes_1.default.SUCCESS);
             });
         });

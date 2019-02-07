@@ -8,6 +8,7 @@ var SocketTypes;
     SocketTypes["DENIED"] = "denied";
     SocketTypes["GET_CHATS"] = "get_chats";
     SocketTypes["GET_PAGE"] = "get_page";
+    SocketTypes["GET_WALL_FILES"] = "get_wall_files";
     SocketTypes["GET_UPLOAD_TOKEN"] = "get_upload_token";
 })(SocketTypes || (SocketTypes = {}));
 exports.default = SocketTypes;

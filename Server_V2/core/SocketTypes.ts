@@ -5,6 +5,7 @@ enum SocketTypes {
 	DENIED = 'denied',
 	GET_CHATS = 'get_chats',
 	GET_PAGE = 'get_page',
+	GET_WALL_FILES = 'get_wall_files',
 	GET_UPLOAD_TOKEN = 'get_upload_token',
 }
 export default SocketTypes;

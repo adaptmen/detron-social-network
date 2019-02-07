@@ -1,26 +1,57 @@
 <div id="settings">
-	<h3>User data</h3>
+	<h3>Пользовательские данные</h3>
 	<div id="user_id" class="disable">
-		<span>id: </span>{{ id }}
+		<span class="label">id: </span>{{ appService.user.id }}
 	</div>
 	<div id="login" class="disable">
-		<span>nickname: </span>{{ login }}
+		<span class="label">Никнейм: </span>@{{ appService.user.login }}
 	</div>
 	<div id="name">
-		<span>name: </span>{{ name }} 
+		<span class="label">Имя: </span>
+		<div class="s_block" (click)="name_input = true">
+			<span>{{ appService.user.name }}</span>
+			<input type="text" #nameInput value="{{ String(appService.user.name) }}" *ngIf="name_input">
+			<button *ngIf="name_input" (click)="setChange({name: nameInputRef.nativeElement.value })">Изменить</button>
+		</div>
 	</div>
 	<div id="status">
-		<span>status: </span>{{ status }} 
+		<span class="label">Статус: </span>
+		<div class="s_block" (click)="status_input = true">
+			<span>{{ appService.user.status || 'не указано' }}</span>
+			<input type="text" #statusInput value="{{ String(appService.user.status) }}" *ngIf="status_input">
+			<button *ngIf="status_input" (click)="setChange({status: statusInputRef.nativeElement.value })">Изменить</button>
+		</div>
 	</div>
 	<div id="age">
-		<span>age: </span>{{ age }} 
+		<span class="label">Возраст: </span>
+		<div class="s_block" (click)="age_input = true">
+			<span>{{ appService.user.age || 'не указано' }}</span>
+			<input type="text" #ageInput value="{{ String(appService.user.age) }}" *ngIf="age_input">
+			<button *ngIf="age_input" (click)="setChange({age: ageInputRef.nativeElement.value })">Изменить</button>
+		</div>
 	</div>
 	<div id="city">
-		<span>city: </span>{{ city }} 
+		<span class="label">Город: </span>
+		<div class="s_block" (click)="city_input = true">
+			<span>{{ appService.user.city || 'не указано' }}</span>
+			<input type="text" #cityInput value="{{ String(appService.user.city) }}" *ngIf="city_input">
+			<button *ngIf="city_input" (click)="setChange({city: cityInputRef.nativeElement.value })">Изменить</button>
+		</div>
 	</div>
 	<div id="avatar">
-		<span>avatar: </span>{{ avatar_url || 'http://gofiguremath.org/wp-content/uploads/2013/12/Sierpinski-Triangle-iteration-1.png' }}
-		<img src="{{ avatar_url || 'http://gofiguremath.org/wp-content/uploads/2013/12/Sierpinski-Triangle-iteration-1.png' }}" alt="">
+		<span class="label">Аватарка: </span>{{ avatar_url || '/assets/red-logo.jpg' }}
+		<img src="{{ avatar_url || '/assets/red-logo.jpg' }}" alt="">
+		<span>{{ avatar_url || '/assets/red-logo.jpg' }}</span>
+		<button *ngIf="city_input" (click)="avatar_change = true">Изменить</button>
 	</div>
-	<h3>Wall files</h3>
+	<div id="access_avatars" *ngIf="avatar_change">
+		<h4>Доступные аватарки:</h4>
+		<div id="avatar_list">
+			<div *ngFor="let avatar of avatars" class="avatar_item" (click)="setChange({avatar_url: avatar.file_url })">
+				<img class="preview" src="{{ avatar.file_url }}" alt="">
+				<div class="circle" *ngIf="avatar.file_url == appService.user.avatar_url"></div>
+				<span class="name">{{ avatar.name }}</span>
+			</div>
+		</div>
+	</div>
 </div>

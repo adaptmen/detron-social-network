@@ -95,6 +95,17 @@ var SocketContext = (function () {
                         }
                     });
                 }
+                else if (r_type == SocketTypes_1.default.GET_WALL_FILES) {
+                    _this
+                        .dbContext
+                        .getFileList("walls:wall_" + r_msg.id)
+                        .then(function (file_list) {
+                        file_list.forEach(function (s_file) {
+                            s_file['file_url'] = "/disk/wall_" + r_msg.id + "/" + s_file['id'];
+                            delete s_file['id'];
+                        });
+                    });
+                }
             });
             socket.on(SocketTypes_1.default.GET_CHATS, function () {
                 _this

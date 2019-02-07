@@ -109,6 +109,17 @@ export default class SocketContext {
 						}
 					});
 				}
+				else if (r_type == SocketTypes.GET_WALL_FILES) {
+					this
+					.dbContext
+					.getFileList(`walls:wall_${r_msg.id}`)
+					.then((file_list: any) => {
+						file_list.forEach((s_file) => {
+							s_file['file_url'] = `/disk/wall_${r_msg.id}/${s_file['id']}`;
+							delete s_file['id'];
+						});
+					});
+				}
 
 			});
 
@@ -119,7 +130,7 @@ export default class SocketContext {
 				.then((chats) => {
 					socket.emit(SocketTypes.GET_CHATS, chats);
 				});
-			})
+			});
 
 		});
 

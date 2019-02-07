@@ -246,6 +246,8 @@ export default class DbContext {
 		});
 	}
 
+	public file_timers = {};
+
 	public uploadFile(file_id, file_name, attacher, ext, file) {
 		return new Promise((resolve, reject) => {
 			let m_stream = this.mongoContext.writeStream(file_id, {});
@@ -264,9 +266,11 @@ export default class DbContext {
 
 				let a_token = this.fileProvider.generateAttachToken(f_attacher, file_id);
 
-				setTimeout(() => {
+				let timer = setTimeout(() => {
 					this.deleteFile(file_id);
 				}, 1000 * 60 * 5);
+
+				this.file_timers[file_id] = timer;
 
 				this.sqlContext.db('disk')
             	.query(`INSERT INTO ??
@@ -294,6 +298,8 @@ export default class DbContext {
 
 			this.fileProvider.attachFile(tData.file_id, tData.object_fid)
             .then((info) => {
+            	clearTimeout(this.file_timers[tData.file_id]);
+            	delete this.file_timers[tData.file_id];
             	resolve(AppTypes.SUCCESS);
             });
 			

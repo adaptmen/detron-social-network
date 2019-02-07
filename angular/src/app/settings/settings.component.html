@@ -42,7 +42,7 @@
 		<span class="label">Аватарка: </span>{{ avatar_url || '/assets/red-logo.jpg' }}
 		<img src="{{ avatar_url || '/assets/red-logo.jpg' }}" alt="">
 		<span>{{ avatar_url || '/assets/red-logo.jpg' }}</span>
-		<button *ngIf="city_input" (click)="avatar_change = true">Изменить</button>
+		<button (click)="avatar_change = true">Изменить</button>
 	</div>
 	<div id="access_avatars" *ngIf="avatar_change">
 		<h4>Доступные аватарки:</h4>

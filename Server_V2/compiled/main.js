@@ -20,10 +20,12 @@ var MongoContext_1 = require("./core/MongoContext");
 var SqlContext_1 = require("./core/SqlContext");
 var SecurityHelper_1 = require("./helpers/SecurityHelper");
 var AppTypes_1 = require("./core/AppTypes");
+var Validator_1 = require("./core/Validator");
 var AuthRepository_1 = require("./core/AuthRepository");
 var SmsProvider_1 = require("./providers/SmsProvider");
 var smsProvider = new SmsProvider_1.default();
 var sqlContext = new SqlContext_1.default();
+var validator = new Validator_1.default();
 var readChunk = require('read-chunk');
 var securityHelper = new SecurityHelper_1.default();
 var store = new Store({ path: 'phones.json' });
@@ -83,21 +85,55 @@ auth_route.post('/login', function (req, res) {
 });
 auth_route.post('/signup', function (req, res) {
     console.log("Signup:", req.query.login, req.query.password);
-    authRepository
-        .signup(req.query.login, req.query.password)
-        .then(function (result) {
-        console.log("Signup result: ", result);
-        if (result === AppTypes_1.default.EXIST) {
-            res.status = 403;
-            res.end("User exist");
-        }
-        else if (!isNaN(result) && result) {
-            res.status = 200;
-            var cookies = new Cookies(req, res);
-            cookies.set('t', result, { expires: new Date(Date.now() + 1000 * 60 * 60) });
-            res.redirect('/app');
-        }
+    var login_valid = validator.validate(req.query.login, {
+        min: 5,
+        max: 25,
+        match: /[a-zA-Z0-9]/
     });
+    var password_valid = validator.validate(req.query.login, {
+        min: 6,
+        max: 25,
+        match: /[a-zA-Zа-яА-Я0-9\-!?*]/
+    });
+    if (login_valid == AppTypes_1.default.SUCCESS
+        && password_valid == AppTypes_1.default.SUCCESS) {
+        authRepository
+            .signup(req.query.login, req.query.password)
+            .then(function (result) {
+            console.log("Signup result: ", result);
+            if (result === AppTypes_1.default.EXIST) {
+                res.status = 403;
+                res.end("User exist");
+            }
+            else if (result) {
+                res.status = 200;
+                var cookies = new Cookies(req, res);
+                cookies.set('t', result, { expires: new Date(Date.now() + 1000 * 60 * 60) });
+                res.end(result);
+            }
+        });
+    }
+    else {
+        res.status = 403;
+        if (login_valid == AppTypes_1.default.ERROR_MIN_LENGTH) {
+            res.end(JSON.stringify({ login: AppTypes_1.default.ERROR_MIN_LENGTH }));
+        }
+        else if (login_valid == AppTypes_1.default.ERROR_MAX_LENGTH) {
+            res.end(JSON.stringify({ login: AppTypes_1.default.ERROR_MAX_LENGTH }));
+        }
+        else if (login_valid == AppTypes_1.default.ERROR_MATCH) {
+            res.end(JSON.stringify({ login: AppTypes_1.default.ERROR_MATCH }));
+        }
+        else if (password_valid == AppTypes_1.default.ERROR_MIN_LENGTH) {
+            res.end(JSON.stringify({ password: AppTypes_1.default.ERROR_MIN_LENGTH }));
+        }
+        else if (password_valid == AppTypes_1.default.ERROR_MAX_LENGTH) {
+            res.end(JSON.stringify({ password: AppTypes_1.default.ERROR_MAX_LENGTH }));
+        }
+        else if (password_valid == AppTypes_1.default.ERROR_MATCH) {
+            res.end(JSON.stringify({ password: AppTypes_1.default.ERROR_MATCH }));
+        }
+    }
 });
 app.use('/auth', auth_route);
 var app_route = express.Router({ strict: true });

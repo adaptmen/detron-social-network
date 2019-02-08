@@ -1,177 +1,177 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-	<title>Detron Auth</title>
-</head>
-<body>
-	<div id="main">
-		<div id="auth">
-			<h2 id="main-label">Вход</h2>
-			<div id="phone-block" style="display: none">
-				<label for="phone">Номер телефона</label>
-				<input id="phone" name="phone" type="text" placeholder="Enter phone number...">
-			</div>
-			<div id="login-block">
-				<label id="login-label" for="login" type="text">Логин</label>
-				<input id="login" name="login" type="text" placeholder="Enter login...">
-			</div>
-			<div id="password-block">
-				<label id="password-label" for="password" type="password">Пароль</label>
-				<input id="password" name="password" type="password" placeholder="Enter password...">
-			</div>
-			<div id="code-block" style="display: none">
-				<label for="code" type="password">Код</label>
-				<input id="code" name="code" type="text" placeholder="Enter code...">
-			</div>
-			<br>
-			<button id="btn-send">Войти</button>
-			<br><br>
-			<button id="btn-signup" onclick="signupView()">Зарегистрироваться</button>
-			<button id="btn-login" onclick="loginView()" style="display: none">Войти</button>
-			<button id="btn-forgot" onclick="forgotView()" style="display: none">Забыли пароль?</button>
-			<h3 id="status-label" style="display: none;"></h3>
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8">
+		<title>Detron Auth</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="./material.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+		<script src="./material.min.js"></script>
+		<script src="./vue.js"></script>
+		<script src="./axios.min.js"></script>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+		<style>
+			.mdl-layout {
+				align-items: center;
+				justify-content: center;
+				-webkit-align-items: center;
+				-webkit-justify-content: center;
+			}
+			.mdl-layout__content {
+				padding: 24px;
+				-webkit-flex: none;
+				flex: none;
+			}
+			.body-background {
+				background-color: #10213d;
+			}
+			.mdl-card {
+				background-color: #142746;
+			}
+			.mdl-card__title {
+				background-color: #142746;
+			}
+			.mdl-textfield__input {
+				border-bottom: 1px solid #406082;
+			}
+			.mdl-textfield__label:after {
+				background-color: #02ffb9;
+			}
+			.mdl-textfield {
+				font-size: 16px;
+			}
+			.mdl-button--accent.mdl-button--accent {
+				color: #02ffb9;
+				min-width: 120px;
+			}
+			.mdl-button--accent.mdl-button--accent:active {
+				color: white;
+			}
+			.mdl-button--accent.mdl-button--accent .mdl-ripple {
+				background-color: #06fff4;
+				width: 200%;
+			}
+			.mdl-ripple.is-visible {
+				opacity: .6;
+			}
+			.mdl-card__actions {
+				padding: 8px 16px;
+			}
+			.mdl-card__title {
+				padding: 18px 16px 0 16px;
+			}
+			#nick {
+				float: right;
+				width: 93%;
+			}
+			#mail-symbol {
+				display: inline-block;
+				position: relative;
+				padding: 20px 0;
+				box-sizing: border-box;
+				color: #fff;
+				font-size: 16px;
+				margin: 5px 0 0 1px;
+			}
+			.mdl-textfield#timer .mdl-textfield__label {
+				font-size: 12px;
+				color: #06fff4;
+			}
+			@media screen and (max-width: 350px) {
+				.mdl-layout__content {
+					width: 100% !important;
+				}
+				.mdl-card {
+					width: 100% !important;
+				}
+				#pass {
+					width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header body-background" id="app">
+			<main class="mdl-layout__content">
+				<div class="mdl-card mdl-shadow--12dp">
+					<div class="mdl-card__title mdl-color-text--white">
+						<h2 class="mdl-card__title-text">Detron Auth</h2>
+					</div>
+					<div class="mdl-card__supporting-text">
+						<form action="#">
+							<div id="mail-symbol">@</div>
+							<div id="nick" class="mdl-textfield mdl-js-textfield mdl-color-text--white">
+								<input pattern="[a-z,A-Z]*" class="mdl-textfield__input mdl-color-text--white" type="text" id="username" v-model="login" />
+								<label class="mdl-textfield__label mdl-color-text--grey" for="username">Nickname</label>
+								<span class="mdl-textfield__error">Error</span>
+							</div>
+							<div id="pass" class="mdl-textfield mdl-js-textfield">
+								<input class="mdl-textfield__input mdl-color-text--white" type="password" id="userpass" v-model="password" />
+								<label class="mdl-textfield__label mdl-color-text--grey" for="userpass">Password</label>
+							</div>
+							<div id="timer" class="mdl-textfield mdl-js-textfield" v-show="isTimer">
+								<label class="mdl-textfield__label">Вы будете перенапрвлены в приложение через {{ time }} секунд</label>
+							</div>
+						</form>
+					</div>
+					<div class="mdl-card__actions mdl-card--border">
+						<button id="btn-signup" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--accent" v-on:click="doSignup">Sign up</button>
+						<button id="btn-login" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--accent" style="float: right;" v-on:click="doLogin">Log in</button>
+					</div>
+				</div>
+			</main>
 		</div>
-	</div>
-	<script
-			  src="https://code.jquery.com/jquery-3.3.1.min.js"
-			  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-			  crossorigin="anonymous"></script>
-	<script>
-		const SERVER_URL	= '176.119.158.61';
-
-		var phone_input 	= document.getElementById("phone");
-		var password_input 	= document.getElementById("password");
-		var login_input 	= document.getElementById("login");
-		var code_input 		= document.getElementById("code");
-
-		var password_label 	= document.getElementById("password-label");
-		var login_label 	= document.getElementById("login-label");
-		var main_label 		= document.getElementById("main-label");
-		var status_label 	= document.getElementById("status-label");
-
-		var code_block 		= document.getElementById("code-block");
-		var password_block 	= document.getElementById("password-block");
-		var phone_block 	= document.getElementById("phone-block");
-		var login_block 	= document.getElementById("login-block");
-
-		var btn_send 		= document.getElementById("btn-send");
-		var btn_signup 		= document.getElementById("btn-signup");
-		var btn_forgot 		= document.getElementById("btn-forgot");
-		var btn_login 		= document.getElementById("btn-login");
-
-		function signupView() {
-			main_label.innerHTML = 'Регистрация';
-			btn_send.innerHTML = 'Зарегистрироваться';
-			btn_signup.style.display = 'none';
-			btn_login.style.display = 'inline-block';
-
-			$(btn_send).off('click');
-
-			$(btn_send).on('click', function(e) {
-				$.ajax({
-					url: '/auth/signup?login=' + login_input.value + '&password=' + password_input.value,
-					type: "POST",
-					success: function(response) {
-						window.location = '/app';
-					},
-					error: function(data) {
-						status_label.style.display = 'inline-block';
-						status_label.innerHTML = JSON.stringify(data.response);
-					}
-				});
-			});
-		}
-
-		function loginView() {
-			main_label.innerHTML = 'Вход';
-			btn_send.innerHTML = 'Войти';
-			btn_login.style.display = 'none';
-			btn_signup.style.display = 'inline-block';
-
-			$(btn_send).off('click');
-
-			$(btn_send).on('click', function(e) {
-				$.ajax({
-					url: '/auth/login?login=' + login_input.value + '&password=' + password_input.value,
-					type: "POST",
-					success: function(response) {
-						window.location = '/app';
-					},
-					error: function(data) {
-						status_label.style.display = 'inline-block';
-						status_label.innerHTML = JSON.stringify(data.response);
-					}
-				});
-			});
-		}
-
-		function forgotView() {
-			main_label.innerHTML = 'Forgot';
-			password_block.style.display = 'none';
-			btn_send.innerHTML = 'Get code'
-			btn_send.addEventListener("click", function(e) {
-				send(SERVER_URL + ':4000/auth/p?phone=' + phone_input.value, function(status, response) {
-					if (status == 200) {
-						code_block.style.display = 'block';
-						btn_send.addEventListener("click", function(e) {
-							send(SERVER_URL + ':4000/auth/c?phone=' + phone_input.value + '&code=' +code_input.value, function(status, response) {
-								if (status == 200) {
-									code_block.style.display = 'none';
-									phone_block.style.display = 'none';
-									password_label.innerHTML = 'New password';
-
-									let token = response;
-
-									btn_send.addEventListener("click", function(e) {
-										send(SERVER_URL + ':4000/auth/np?phone=' + phone_input.value + '&password=' + password_input.value + '?t' + token, function(status, response) {
-											if (status == 200) {
-												let token_n = response;
-												window.location = SERVER_URL + '?t=' + String(token_n);
-											}
-										});
-									});
-								}
-							});
-						});
-					}
-				});
-			});
-		}
-
-		$(btn_send).on("click", function(e) {
-			$.ajax({
-				url: '/auth/login?login=' + login_input.value + '&password=' + password_input.value,
-				type: "POST",
-				success: function(response) {
-					let token 		= response;
-					window.location = '/app';
+		<script>
+			var app = new Vue({
+				el: '#app',
+				data: {
+					login: '',
+					password: '',
+					isSignup: false,
+					time: 5,
+					isTimer: false
 				},
-				error: function(data) {
-					status_label.style.display = 'inline-block';
-					status_label.innerHTML = JSON.stringify(data.response);
+				methods: {
+					doLogin: function(e) {
+						var _this = this;
+						axios
+						.post('/auth/login?login='+_this.login+'&password='+_this.password, {})
+						.then(function(ans) {
+							if (ans.data.match(/([a-z0-9]{14})-([a-z0-9]{10})/)) {
+								_this.startTimer(function() {
+									window.location = '/app';
+								});
+							}
+						})
+						.catch(function(err) { console.log(err) });
+					},
+					doSignup: function(e) {
+						var _this = this;
+						axios
+						.post('/auth/signup?login='+_this.login+'&password='+_this.password, {})
+						.then(function(ans)  {
+							if (ans.data.match(/([a-z0-9]{14})-([a-z0-9]{10})/)) {
+								_this.startTimer(function() {
+									window.location = '/app';
+								});
+							}
+						})
+						.catch(function(err) { console.log(err) });
+					},
+					startTimer: function(callback) {
+						this.isTimer = true;
+						var _this = this;
+						var timer = setInterval(function() {
+							_this.time--;
+							if (_this.time <= 0) {
+								clearInterval(timer);
+								callback();
+							}
+						}, 1000);
+					}
 				}
 			});
-		});
-	</script>
-	<style>
-		html, body, #main {
-			height: 100%;
-			width: 100%;
-			margin: 0;
-			padding: 0;
-		}
-
-		#auth {
-			grid-area: 2/2/2/2;
-			text-align: center;
-		}
-
-		#main {
-			background-color: #10213d;
-			color: #ffffff;
-			display: grid;
-			grid-template: 1fr 2fr 1fr / 1fr 2fr 1fr;
-		}
-	</style>
-</body>
+			alert(app);
+		</script>
+	</body>
 </html>

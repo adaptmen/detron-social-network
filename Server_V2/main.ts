@@ -9,8 +9,8 @@ import Cookies = require('cookies');
 import * as socketIo from 'socket.io';
 const FileType = require('stream-file-type');
 
-import fileTypeStream from 'file-type-stream'
-import { PassThrough } from 'stream'
+import fileTypeStream from 'file-type-stream';
+import { PassThrough } from 'stream';
 
 import path = require("path");
 var config = require('./config.json');
@@ -21,12 +21,14 @@ import MongoContext from './core/MongoContext';
 import SqlContext from './core/SqlContext';
 import SecurityHelper from './helpers/SecurityHelper';
 import AppTypes from './core/AppTypes';
+import Validator from './core/Validator';
 
 import AuthRepository from './core/AuthRepository';
 import SmsProvider from './providers/SmsProvider';
 
 var smsProvider = new SmsProvider();
 var sqlContext = new SqlContext();
+var validator = new Validator();
 
 const readChunk = require('read-chunk');
 
@@ -108,21 +110,55 @@ auth_route.post('/login', (req, res) => {
 
 auth_route.post('/signup', (req, res) => {
 	console.log("Signup:", req.query.login, req.query.password);
-	authRepository
-	.signup(req.query.login, req.query.password)
-	.then((result) => {
-		console.log("Signup result: ", result);
-		if (result === AppTypes.EXIST) {
-			res.status = 403;
-			res.end("User exist");
-		}
-		else if (!isNaN(result) && result) {
-			res.status = 200;
-			let cookies = new Cookies(req, res);
-			cookies.set('t', result, { expires: new Date(Date.now() + 1000*60*60) });
-			res.redirect('/app');
-		}
+	let login_valid = validator.validate(req.query.login, {
+		min: 5,
+		max: 25,
+		match: /[a-zA-Z0-9]/
 	});
+	let password_valid = validator.validate(req.query.login, {
+		min: 6,
+		max: 25,
+		match: /[a-zA-Zа-яА-Я0-9\-!?*]/
+	});
+	if (login_valid == AppTypes.SUCCESS 
+		&& password_valid == AppTypes.SUCCESS) {
+		authRepository
+		.signup(req.query.login, req.query.password)
+		.then((result) => {
+			console.log("Signup result: ", result);
+			if (result === AppTypes.EXIST) {
+				res.status = 403;
+				res.end("User exist");
+			}
+			else if (result) {
+				res.status = 200;
+				let cookies = new Cookies(req, res);
+				cookies.set('t', result, { expires: new Date(Date.now() + 1000*60*60) });
+				res.end(result);
+			}
+		});
+	}
+	else {
+		res.status = 403;
+		if (login_valid == AppTypes.ERROR_MIN_LENGTH) {
+			res.end(JSON.stringify({ login: AppTypes.ERROR_MIN_LENGTH}));
+		}
+		else if (login_valid == AppTypes.ERROR_MAX_LENGTH) {
+			res.end(JSON.stringify({ login: AppTypes.ERROR_MAX_LENGTH}));
+		}
+		else if (login_valid == AppTypes.ERROR_MATCH) {
+			res.end(JSON.stringify({ login: AppTypes.ERROR_MATCH}));
+		}
+		else if (password_valid == AppTypes.ERROR_MIN_LENGTH) {
+			res.end(JSON.stringify({ password: AppTypes.ERROR_MIN_LENGTH}));
+		}
+		else if (password_valid == AppTypes.ERROR_MAX_LENGTH) {
+			res.end(JSON.stringify({ password: AppTypes.ERROR_MAX_LENGTH}));
+		}
+		else if (password_valid == AppTypes.ERROR_MATCH) {
+			res.end(JSON.stringify({ password: AppTypes.ERROR_MATCH}));
+		}
+	}
 });
 
 app.use('/auth', auth_route);

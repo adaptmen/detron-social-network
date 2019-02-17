@@ -10,6 +10,9 @@ enum AppTypes {
 	NOT_EXIST = 'not_exist',
 	ACCESS = 'access',
 	EMPTY = 'empty',
+	WALL = 'wall',
+	USER = 'user',
+	CHAT = 'chat',
 }
 
 export default AppTypes;

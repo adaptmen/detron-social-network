@@ -17,12 +17,12 @@ export default class DbContext {
 	private mongoContext: MongoContext;
 	private sqlContext: SqlContext;
 
-	private messageProvider: MessageDataProvider;
-	private historyProvider: HistoryDataProvider;
-	private userProvider: UserDataProvider;
-	private wallProvider: WallDataProvider;
-	private fileProvider: FileDataProvider;
-	private groupProvider: GroupDataProvider;
+	public messageProvider: MessageDataProvider;
+	public historyProvider: HistoryDataProvider;
+	public userProvider: UserDataProvider;
+	public wallProvider: WallDataProvider;
+	public fileProvider: FileDataProvider;
+	public groupProvider: GroupDataProvider;
 	
 	constructor(mongoContext: MongoContext, sqlContext: SqlContext) {
 		this.mongoContext = mongoContext;
@@ -161,23 +161,6 @@ export default class DbContext {
 		.then((res: any) => {
 			return this.mongoContext.readStream(res.mongo_id)
 		});
-	}
-
-	public accessFileExt(ext) {
-		let ACCESS_LIST = [
-			'png', 'jpeg', 'jpg',
-			'pdf', 'gif', 'mp3',
-			'3gp', 'avi', 'mkv',
-			'doc', 'docx', 'rar',
-			'zip', 'odf', 'ods',
-			'odp', 'blend', 'mp4',
-			'tar', 'gzip', 'webp',
-			'psd', 'gz', '7z',
-			'ogg', 'exe', 'ico',
-			'rpm', 'deb', 'cab',
-			'pptx', 'ics', 'xml',
-			'eot', 'ttf', 'otf'];
-		return ACCESS_LIST.includes(ext);
 	}
 
 	public checkFileAccess(user_id, object) {

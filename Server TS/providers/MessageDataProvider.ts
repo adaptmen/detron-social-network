@@ -1,6 +1,7 @@
 import DataProvider from "./DataProvider";
 import MongoContext from "../core/MongoContext";
 import SqlContext from "../core/SqlContext";
+import AppTypes from "../core/AppTypes";
 
 export default class MessageDataProvider extends DataProvider {
 
@@ -94,6 +95,17 @@ export default class MessageDataProvider extends DataProvider {
                 //  });
                 //});
             });
+        });
+    }
+
+    public checkChatExist(chat_id: string) {
+        this
+        .sqlContext
+        .query(``,
+         [])
+        .then((res) => {
+            if (res) return AppTypes.EXIST;
+            else return AppTypes.NOT_EXIST;
         });
     }
 

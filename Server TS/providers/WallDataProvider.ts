@@ -122,14 +122,28 @@ export default class WallDataProvider extends DataProvider {
 		return this.query(sparql, 'query');
 	}
 
-    public checkOwner(wall_id, user_id) {
+    public checkExist(wall_id) {
         let sparql =
             `${this.sparqlHelper.prefixes}
             ASK WHERE
             {
                 GRAPH <${this.sparqlHelper.graphs_uri.walls}>
                 { 
-                    walls:wall_${wall_id} walls:attacher users:
+                    walls:wall_${wall_id} type:id "${wall_id}" .
+                }
+            }}`;
+        return this
+        .query(sparql, 'query');
+    }
+
+    public checkAttacher(wall_id, attacher_fid) {
+        let sparql =
+            `${this.sparqlHelper.prefixes}
+            ASK WHERE
+            {
+                GRAPH <${this.sparqlHelper.graphs_uri.walls}>
+                { 
+                    walls:wall_${wall_id} walls:attacher ${attacher_fid} .
                 }
             }}`;
         return this.query(sparql, 'query');

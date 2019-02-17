@@ -1,5 +1,6 @@
 import * as socketIo from 'socket.io';
 import SecurityHelper from '../helpers/SecurityHelper';
+import AccessHelper from '../helpers/AccessHelper';
 import DbContext from './DbContext';
 import AuthRepository from './AuthRepository';
 import AppTypes from './AppTypes';
@@ -11,6 +12,7 @@ export default class SocketContext {
 	private dbContext: DbContext;
 	private authRepository: AuthRepository;
 	private securityHelper = new SecurityHelper();
+	private accessHelper = new AccessHelper(this.dbContext);
 	private io: socketIo.Server;
 
 	public onSocketInit: (context: SocketContext) => void;
@@ -69,6 +71,15 @@ export default class SocketContext {
 				let r_type = body['type'];
 				let r_msg = body['msg'];
 
+				/*let rsocket = (body) => {
+					let signals = {};
+					return {
+						on: (type, fun) => {
+							fun();
+						}
+					};
+				};*/
+
 				if (r_type == SocketTypes.GET_UPLOAD_TOKEN) {
 					this
 					.dbContext
@@ -118,6 +129,14 @@ export default class SocketContext {
 							s_file['file_url'] = `/disk/wall_${r_msg.id}/${s_file['id']}`;
 							delete s_file['id'];
 						});
+					});
+				}
+				else if (r_type == SocketTypes.UPDATE_USER_DATA) {
+					this
+					.accessHelper
+					.checkOwner(r_msg.obj_fid, socket.id)
+					.then((res) => {
+						
 					});
 				}
 
